@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ôn thi Thực hành cơ sở — PTIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap&subset=vietnamese,latin,latin-ext" rel="stylesheet">
+<style>
+:root{
+  --paper:#E7ECEC;
+  --paper-2:#dde4e4;
+  --ink:#10353A;
+  --ink-soft:#3a5a5e;
+  --muted:#6c8184;
+  --surface:#fbfcfb;
+  --line:#c4d0d0;
+  --amber:#E2742A;
+  --amber-soft:#fbe9da;
+  --ok:#138a55;
+  --ok-soft:#dbf1e6;
+  --bad:#c93f43;
+  --bad-soft:#fadddd;
+  --shadow:0 1px 0 #ffffff inset, 0 10px 30px -18px rgba(16,53,58,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  color:var(--ink);
+  background:var(--paper);
+  background-image:
+    linear-gradient(rgba(16,53,58,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(16,53,58,.045) 1px,transparent 1px);
+  background-size:26px 26px;
+  -webkit-font-smoothing:antialiased;
+  line-height:1.55;
+  padding:0 18px 60px;
+}
+.wrap{max-width:820px;margin:0 auto}
+
+/* ---------- top bar ---------- */
+.bar{
+  display:flex;align-items:center;gap:14px;
+  padding:18px 0 16px;
+  border-bottom:2px solid var(--ink);
+  margin-bottom:26px;flex-wrap:wrap;
+}
+.logo{
+  width:42px;height:42px;flex:none;border:2px solid var(--ink);border-radius:9px;
+  display:grid;place-items:center;background:var(--surface);
+  position:relative;overflow:hidden;
+}
+.logo svg{width:30px;height:30px}
+.brand h1{font-family:'Space Grotesk',sans-serif;font-size:18px;letter-spacing:-.01em;line-height:1.1}
+.brand p{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.readout{
+  margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:12px;
+  background:var(--ink);color:#9fe6c4;padding:7px 12px;border-radius:7px;
+  letter-spacing:.06em;display:flex;gap:14px;align-items:center;
+}
+.readout b{color:#fff;font-weight:700}
+.readout .dot{width:7px;height:7px;border-radius:50%;background:#36d98a;box-shadow:0 0 8px #36d98a}
+
+/* ---------- panel ---------- */
+.panel{
+  background:var(--surface);border:1.5px solid var(--line);border-radius:16px;
+  box-shadow:var(--shadow);padding:26px 26px 24px;
+}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);font-weight:700}
+
+/* ---------- start screen ---------- */
+.hero h2{font-family:'Space Grotesk',sans-serif;font-size:30px;line-height:1.12;letter-spacing:-.02em;margin:8px 0 10px}
+.hero p.lead{color:var(--ink-soft);font-size:15px;max-width:60ch}
+.parts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:22px 0 6px}
+.pchip{
+  border:1.5px solid var(--line);border-radius:11px;padding:12px 13px;cursor:pointer;
+  background:var(--surface);transition:.15s;position:relative;user-select:none;
+}
+.pchip:hover{border-color:var(--ink-soft)}
+.pchip.on{border-color:var(--ink);background:#f0f7f5;box-shadow:0 0 0 1.5px var(--ink) inset}
+.pchip .pn{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--amber);font-weight:700;letter-spacing:.05em}
+.pchip .pt{font-size:13px;font-weight:600;margin-top:3px;line-height:1.25}
+.pchip .pc{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:6px}
+.pchip .tick{position:absolute;top:9px;right:10px;width:16px;height:16px;border-radius:5px;border:1.5px solid var(--line);display:grid;place-items:center}
+.pchip.on .tick{background:var(--ink);border-color:var(--ink)}
+.pchip.on .tick:after{content:"✓";color:#fff;font-size:11px;font-weight:700}
+
+.opts-row{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin:18px 0 4px}
+.toggle{display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13.5px;color:var(--ink-soft);user-select:none}
+.sw{width:38px;height:22px;border-radius:20px;background:var(--paper-2);border:1.5px solid var(--line);position:relative;transition:.18s;flex:none}
+.sw:after{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.18s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.toggle.on .sw{background:var(--ink);border-color:var(--ink)}
+.toggle.on .sw:after{left:18px}
+
+.btn{
+  font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;cursor:pointer;
+  border:1.5px solid var(--ink);background:var(--ink);color:#fff;border-radius:11px;
+  padding:13px 22px;transition:.15s;display:inline-flex;align-items:center;gap:9px;
+}
+.btn:hover{background:#0a2a2e}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:#eef4f3}
+.btn.amber{background:var(--amber);border-color:var(--amber)}
+.btn.amber:hover{background:#cc6520}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+
+/* ---------- quiz ---------- */
+.qhead{display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+.tag{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.05em;padding:4px 9px;border-radius:6px;background:var(--amber-soft);color:var(--amber)}
+.qnum{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:.05em}
+.prog{height:6px;background:var(--paper-2);border-radius:6px;overflow:hidden;margin:0 0 22px;border:1px solid var(--line)}
+.prog i{display:block;height:100%;background:var(--amber);transition:width .35s ease}
+.qtext{font-family:'Space Grotesk',sans-serif;font-size:20px;line-height:1.4;letter-spacing:-.01em;margin-bottom:20px}
+.sch{width:100%;max-width:430px;height:auto;margin:0 auto 20px;display:block;background:#f9fcfb;border:1.5px solid var(--line);border-radius:12px;padding:12px 10px}
+.sch text{font-family:'JetBrains Mono',monospace;font-size:11px;fill:var(--ink-soft)}
+.sch .w{stroke:var(--ink);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.sch .probe{fill:var(--amber);stroke:none}
+.sch .pl{fill:var(--amber);font-weight:700}
+.sch .nd{fill:var(--ink)}
+.code-box{
+  font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.55;
+  background:#0f2e32;color:#cfe9df;border-radius:10px;padding:14px 16px;margin:0 0 18px;
+  overflow-x:auto;white-space:pre;border:1.5px solid #0a2326;
+}
+.code-box .cm{color:#7fae9b}
+.code-box .hl{color:#ffcf9e;font-weight:700}
+.opt.mono .otxt{font-family:'JetBrains Mono',monospace;font-size:13.5px;white-space:pre-wrap}
+.opt{
+  display:flex;gap:13px;align-items:flex-start;width:100%;text-align:left;
+  border:1.5px solid var(--line);background:var(--surface);border-radius:12px;
+  padding:14px 16px;margin-bottom:11px;cursor:pointer;transition:.13s;font-size:15px;color:var(--ink);
+}
+.opt:hover:not(:disabled){border-color:var(--ink-soft);background:#f4f8f7}
+.opt:disabled{cursor:default}
+.opt .key{
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;flex:none;
+  width:26px;height:26px;border-radius:7px;border:1.5px solid var(--line);
+  display:grid;place-items:center;background:var(--surface);transition:.13s;
+}
+.opt .otxt{padding-top:2px}
+.opt.correct{border-color:var(--ok);background:var(--ok-soft)}
+.opt.correct .key{background:var(--ok);border-color:var(--ok);color:#fff}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.wrong .key{background:var(--bad);border-color:var(--bad);color:#fff}
+.opt.dim{opacity:.6}
+
+.explain{
+  border-left:3px solid var(--amber);background:#fbf6f1;border-radius:0 10px 10px 0;
+  padding:13px 16px;font-size:14.5px;color:var(--ink-soft);margin:4px 0 6px;
+  animation:fade .25s ease;
+}
+.explain b{color:var(--ink);font-weight:600}
+.verdict{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.05em;margin-bottom:6px;text-transform:uppercase}
+.verdict.ok{color:var(--ok)}
+.verdict.bad{color:var(--bad)}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.qfoot{display:flex;align-items:center;gap:12px;margin-top:18px;flex-wrap:wrap}
+.qfoot .sp{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted)}
+.hint{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:14px;letter-spacing:.03em}
+
+/* ---------- result ---------- */
+.score-big{font-family:'Space Grotesk',sans-serif;font-size:54px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.score-big span{font-size:26px;color:var(--muted)}
+.bars{margin:22px 0 4px;display:flex;flex-direction:column;gap:12px}
+.brow{display:grid;grid-template-columns:130px 1fr 64px;gap:12px;align-items:center}
+.brow .bl{font-size:13px;font-weight:600}
+.brow .bt{height:18px;background:var(--paper-2);border-radius:5px;overflow:hidden;border:1px solid var(--line)}
+.brow .bt i{display:block;height:100%;background:var(--ink)}
+.brow .bv{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);text-align:right}
+.divider{height:1px;background:var(--line);margin:22px 0}
+
+@media(max-width:560px){
+  .hero h2{font-size:24px}
+  .qtext{font-size:18px}
+  .brow{grid-template-columns:96px 1fr 54px}
+  .readout{font-size:11px;gap:10px;padding:6px 10px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#10353A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 12h4l2-6 4 12 2-6h2"/><path d="M16 12h6"/><circle cx="19" cy="12" r="0" fill="#E2742A" stroke="#E2742A"/>
+      </svg>
+    </div>
+    <div class="brand">
+      <h1>Thực hành cơ sở · Ôn trắc nghiệm</h1>
+      <p>Học viện Công nghệ BCVT (PTIT)</p>
+    </div>
+    <div class="readout" id="readout" hidden>
+      <span class="dot"></span>
+      <span>CÂU <b id="rqi">0</b>/<b id="rqt">0</b></span>
+      <span>ĐÚNG <b id="rok">0</b></span>
+    </div>
+  </div>
+
+  <!-- START -->
+  <div class="panel hero" id="start">
+    <span class="eyebrow">Luyện thi cuối kỳ</span>
+    <h2>Bộ câu hỏi ôn tập theo bài giảng</h2>
+    <p class="lead">Hơn 100 câu trắc nghiệm bám sát giáo trình, phủ đủ 5 phần: từ lý thuyết đo lường, mô phỏng mạch tương tự & số trên Proteus, vi điều khiển 8051, đến lắp ráp mạch tăng âm và KIT IoT ESP32. Chọn câu trả lời sẽ chấm ngay kèm giải thích.</p>
+
+    <span class="eyebrow" style="display:block;margin:24px 0 2px">Chọn phần ôn</span>
+    <div class="parts" id="parts"></div>
+    <div style="display:flex;gap:10px;margin-top:6px">
+      <button class="btn ghost" id="selAll" style="padding:8px 14px;font-size:13px">Chọn tất cả</button>
+      <button class="btn ghost" id="selNone" style="padding:8px 14px;font-size:13px">Bỏ chọn</button>
+    </div>
+
+    <div class="opts-row">
+      <div class="toggle on" id="tgShuffle"><div class="sw"></div><span>Trộn thứ tự câu hỏi</span></div>
+      <div class="toggle" id="tgLimit"><div class="sw"></div><span>Giới hạn 20 câu (đề ngắn)</span></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn amber" id="startBtn">Bắt đầu ôn →</button>
+      <span class="hint" id="startCount" style="align-self:center"></span>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="panel" id="quiz" hidden>
+    <div class="prog"><i id="bar" style="width:0%"></i></div>
+    <div class="qhead">
+      <span class="tag" id="qtag">PHẦN 1</span>
+      <span class="qnum" id="qnum">Câu 1 / 20</span>
+    </div>
+    <div class="qtext" id="qtext"></div>
+    <div id="qmedia"></div>
+    <div id="opts"></div>
+    <div id="feedback"></div>
+    <div class="qfoot">
+      <button class="btn" id="nextBtn" disabled>Câu tiếp →</button>
+      <button class="btn ghost" id="quitBtn">Kết thúc</button>
+      <span class="sp" id="liveScore">0 đúng</span>
+    </div>
+    <div class="hint">Phím tắt: 1–4 hoặc A–D để chọn · Enter để sang câu tiếp</div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="panel" id="result" hidden>
+    <span class="eyebrow">Kết quả</span>
+    <div style="display:flex;align-items:flex-end;gap:16px;margin:8px 0 4px;flex-wrap:wrap">
+      <div class="score-big"><span id="rPct">0%</span></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--muted);padding-bottom:8px" id="rLine">0/0 câu đúng</div>
+    </div>
+    <p class="lead" id="rMsg" style="color:var(--ink-soft)"></p>
+    <div class="divider"></div>
+    <span class="eyebrow">Theo từng phần</span>
+    <div class="bars" id="bars"></div>
+    <div class="btn-row">
+      <button class="btn amber" id="reviewBtn">Xem lại câu sai</button>
+      <button class="btn" id="retryBtn">Làm lại</button>
+      <button class="btn ghost" id="homeBtn">Về đầu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================== QUESTION BANK ===================== */
+const PARTS = {
+  1:{name:"Phần 1 · Lý thuyết bổ trợ", short:"Đo lường, thiết bị đo, hàn nối, mô phỏng"},
+  2:{name:"Phần 2 · Mô phỏng trên máy tính", short:"Op-amp, ổn áp, dao động, số, 8051, Arduino"},
+  3:{name:"Phần 3 · Lắp ráp breadboard", short:"Mạch đo tần số 2 digit, mạch 8051"},
+  4:{name:"Phần 4 · Lắp ráp mạch in (PCB)", short:"Máy tăng âm dùng transistor"},
+  5:{name:"Phần 5 · KIT Arduino / IoT", short:"ESP32: LED, cảm biến, động cơ, bơm nước"},
+};
+
+/* ===================== SCHEMATIC DIAGRAMS (SVG) ===================== */
+const gnd = (x,y)=>`<line class="w" x1="${x}" y1="${y}" x2="${x}" y2="${y+10}"/>
+<line class="w" x1="${x-9}" y1="${y+10}" x2="${x+9}" y2="${y+10}"/>
+<line class="w" x1="${x-5}" y1="${y+14}" x2="${x+5}" y2="${y+14}"/>
+<line class="w" x1="${x-2}" y1="${y+18}" x2="${x+2}" y2="${y+18}"/>`;
+
+const DIAGRAMS = {
+INV:`<svg class="sch" viewBox="0 0 300 170" role="img">
+<polygon class="w" points="148,46 148,124 214,85"/>
+<text x="153" y="68">−</text><text x="153" y="112">+</text>
+<line class="w" x1="20" y1="62" x2="55" y2="62"/>
+<rect class="w" x="55" y="55" width="44" height="14"/><text x="58" y="50">R1 1k</text>
+<line class="w" x1="99" y1="62" x2="122" y2="62"/><line class="w" x1="122" y1="62" x2="148" y2="62"/>
+<circle cx="122" cy="62" r="2.6" class="nd"/>
+<line class="w" x1="122" y1="62" x2="122" y2="30"/><line class="w" x1="122" y1="30" x2="152" y2="30"/>
+<rect class="w" x="152" y="23" width="44" height="14"/><text x="152" y="18">R2 22k</text>
+<line class="w" x1="196" y1="30" x2="244" y2="30"/><line class="w" x1="244" y1="30" x2="244" y2="85"/>
+<line class="w" x1="148" y1="108" x2="122" y2="108"/><line class="w" x1="122" y1="108" x2="122" y2="128"/>
+${gnd(122,128)}
+<line class="w" x1="214" y1="85" x2="270" y2="85"/><circle cx="244" cy="85" r="2.6" class="nd"/>
+<circle cx="270" cy="85" r="3.6" class="probe"/><text x="248" y="78" class="pl">Vout</text>
+<text x="6" y="58">Vin</text></svg>`,
+
+NONINV:`<svg class="sch" viewBox="0 0 300 170" role="img">
+<polygon class="w" points="150,46 150,124 216,85"/>
+<text x="155" y="68">−</text><text x="155" y="112">+</text>
+<line class="w" x1="20" y1="108" x2="150" y2="108"/><text x="6" y="104">Vin</text>
+<line class="w" x1="124" y1="62" x2="150" y2="62"/><circle cx="124" cy="62" r="2.6" class="nd"/>
+<line class="w" x1="124" y1="62" x2="124" y2="78"/>
+<rect class="w" x="117" y="78" width="14" height="34"/><text x="92" y="98">R1</text>
+<line class="w" x1="124" y1="112" x2="124" y2="128"/>${gnd(124,128)}
+<line class="w" x1="124" y1="62" x2="124" y2="30"/><line class="w" x1="124" y1="30" x2="154" y2="30"/>
+<rect class="w" x="154" y="23" width="44" height="14"/><text x="156" y="18">R2 (Rf)</text>
+<line class="w" x1="198" y1="30" x2="246" y2="30"/><line class="w" x1="246" y1="30" x2="246" y2="85"/>
+<line class="w" x1="216" y1="85" x2="272" y2="85"/><circle cx="246" cy="85" r="2.6" class="nd"/>
+<circle cx="272" cy="85" r="3.6" class="probe"/><text x="250" y="78" class="pl">Vout</text></svg>`,
+
+COMP:`<svg class="sch" viewBox="0 0 300 170" role="img">
+<polygon class="w" points="150,46 150,124 216,85"/>
+<text x="155" y="68">−</text><text x="155" y="112">+</text>
+<line class="w" x1="40" y1="108" x2="150" y2="108"/><text x="10" y="104">Vin</text>
+<line class="w" x1="40" y1="62" x2="150" y2="62"/><text x="6" y="58">Vref</text>
+<line class="w" x1="216" y1="85" x2="272" y2="85"/>
+<circle cx="272" cy="85" r="3.6" class="probe"/><text x="250" y="78" class="pl">Vout</text>
+<text x="58" y="150">(không có hồi tiếp âm)</text></svg>`,
+
+INTEG:`<svg class="sch" viewBox="0 0 300 170" role="img">
+<polygon class="w" points="150,46 150,124 216,85"/>
+<text x="155" y="68">−</text><text x="155" y="112">+</text>
+<line class="w" x1="20" y1="62" x2="55" y2="62"/><rect class="w" x="55" y="55" width="44" height="14"/>
+<text x="66" y="50">R</text><line class="w" x1="99" y1="62" x2="124" y2="62"/>
+<line class="w" x1="124" y1="62" x2="150" y2="62"/><circle cx="124" cy="62" r="2.6" class="nd"/>
+<line class="w" x1="124" y1="62" x2="124" y2="30"/><line class="w" x1="124" y1="30" x2="160" y2="30"/>
+<line class="w" x1="172" y1="22" x2="172" y2="38"/><line class="w" x1="180" y1="22" x2="180" y2="38"/>
+<text x="166" y="16">C</text>
+<line class="w" x1="160" y1="30" x2="172" y2="30"/><line class="w" x1="180" y1="30" x2="246" y2="30"/>
+<line class="w" x1="246" y1="30" x2="246" y2="85"/>
+<line class="w" x1="150" y1="108" x2="124" y2="108"/><line class="w" x1="124" y1="108" x2="124" y2="128"/>${gnd(124,128)}
+<line class="w" x1="216" y1="85" x2="272" y2="85"/><circle cx="246" cy="85" r="2.6" class="nd"/>
+<circle cx="272" cy="85" r="3.6" class="probe"/><text x="250" y="78" class="pl">Vout</text>
+<text x="6" y="58">Vin</text></svg>`,
+
+ZENER:`<svg class="sch" viewBox="0 0 300 170" role="img">
+<line class="w" x1="20" y1="45" x2="60" y2="45"/><text x="6" y="41">Vin</text>
+<rect class="w" x="60" y="38" width="46" height="14"/><text x="64" y="33">Rs</text>
+<line class="w" x1="106" y1="45" x2="170" y2="45"/><circle cx="170" cy="45" r="2.6" class="nd"/>
+<line class="w" x1="170" y1="45" x2="170" y2="70"/>
+<polygon class="w" points="160,92 180,92 170,74"/>
+<line class="w" x1="156" y1="74" x2="184" y2="74"/>
+<line class="w" x1="156" y1="74" x2="150" y2="68"/><line class="w" x1="184" y1="74" x2="190" y2="80"/>
+<line class="w" x1="170" y1="92" x2="170" y2="112"/>${gnd(170,112)}
+<text x="190" y="88">Dz</text>
+<line class="w" x1="170" y1="45" x2="232" y2="45"/><circle cx="232" cy="45" r="2.6" class="nd"/>
+<line class="w" x1="232" y1="45" x2="232" y2="62"/>
+<rect class="w" x="225" y="62" width="14" height="34"/><text x="244" y="84">RL</text>
+<line class="w" x1="232" y1="96" x2="232" y2="112"/>${gnd(232,112)}
+<line class="w" x1="232" y1="45" x2="262" y2="45"/><circle cx="262" cy="45" r="3.6" class="probe"/>
+<text x="238" y="38" class="pl">Vout</text></svg>`,
+
+REG7805:`<svg class="sch" viewBox="0 0 300 170" role="img">
+<line class="w" x1="14" y1="50" x2="70" y2="50"/><text x="2" y="46">Vin</text>
+<circle cx="70" cy="50" r="2.6" class="nd"/>
+<rect class="w" x="110" y="40" width="70" height="40"/><text x="120" y="64">7805</text>
+<text x="84" y="46">IN</text><text x="182" y="46">OUT</text>
+<line class="w" x1="70" y1="50" x2="110" y2="50"/>
+<line class="w" x1="70" y1="50" x2="70" y2="74"/>
+<line class="w" x1="64" y1="74" x2="76" y2="74"/><line class="w" x1="64" y1="80" x2="76" y2="80"/>
+<text x="44" y="100">Cin</text>
+<line class="w" x1="70" y1="84" x2="70" y2="118"/>${gnd(70,118)}
+<line class="w" x1="145" y1="80" x2="145" y2="118"/>${gnd(145,118)}<text x="150" y="100">GND</text>
+<line class="w" x1="180" y1="50" x2="232" y2="50"/><circle cx="232" cy="50" r="2.6" class="nd"/>
+<line class="w" x1="232" y1="50" x2="232" y2="74"/>
+<line class="w" x1="226" y1="74" x2="238" y2="74"/><line class="w" x1="226" y1="80" x2="238" y2="80"/>
+<text x="244" y="100">Cout</text>
+<line class="w" x1="232" y1="84" x2="232" y2="118"/>${gnd(232,118)}
+<line class="w" x1="232" y1="50" x2="270" y2="50"/><circle cx="270" cy="50" r="3.6" class="probe"/>
+<text x="246" y="42" class="pl">+5V</text></svg>`,
+
+BRIDGE:`<svg class="sch" viewBox="0 0 300 180" role="img">
+<text x="6" y="60">AC</text><line class="w" x1="30" y1="65" x2="30" y2="115"/>
+<line class="w" x1="22" y1="78" x2="22" y2="102"/>
+<line class="w" x1="30" y1="72" x2="100" y2="72"/><line class="w" x1="30" y1="108" x2="100" y2="108"/>
+<circle cx="100" cy="72" r="2.6" class="nd"/><circle cx="100" cy="108" r="2.6" class="nd"/>
+<polygon class="w" points="112,64 124,64 118,52"/><line class="w" x1="111" y1="52" x2="125" y2="52"/>
+<line class="w" x1="100" y1="72" x2="118" y2="72"/><line class="w" x1="118" y1="72" x2="118" y2="64"/>
+<line class="w" x1="118" y1="52" x2="118" y2="40"/>
+<polygon class="w" points="112,116 124,116 118,128"/><line class="w" x1="111" y1="116" x2="125" y2="116"/>
+<line class="w" x1="100" y1="108" x2="118" y2="108"/><line class="w" x1="118" y1="108" x2="118" y2="116"/>
+<line class="w" x1="118" y1="128" x2="118" y2="142"/>
+<text x="56" y="94" class="pl">cầu 4 diode</text>
+<line class="w" x1="118" y1="40" x2="220" y2="40"/><circle cx="118" cy="40" r="2.6" class="nd"/>
+<line class="w" x1="118" y1="142" x2="220" y2="142"/><circle cx="118" cy="142" r="2.6" class="nd"/>
+<line class="w" x1="180" y1="40" x2="180" y2="62"/>
+<line class="w" x1="172" y1="62" x2="188" y2="62"/><line class="w" x1="172" y1="70" x2="188" y2="70"/>
+<text x="192" y="60">C</text><line class="w" x1="180" y1="70" x2="180" y2="142"/><circle cx="180" cy="40" r="2.6" class="nd"/><circle cx="180" cy="142" r="2.6" class="nd"/>
+<line class="w" x1="220" y1="40" x2="220" y2="142"/>
+<rect class="w" x="213" y="78" width="14" height="30"/><text x="232" y="98">RL</text>
+<line class="w" x1="220" y1="40" x2="250" y2="40"/><circle cx="250" cy="40" r="3.6" class="probe"/>
+<text x="224" y="33" class="pl">+DC</text></svg>`,
+
+A555:`<svg class="sch" viewBox="0 0 300 175" role="img">
+<rect class="w" x="110" y="55" width="80" height="70"/><text x="123" y="95">NE555</text>
+<text x="92" y="44">VCC</text><text x="192" y="95">OUT</text>
+<line class="w" x1="150" y1="20" x2="150" y2="40"/><text x="156" y="28">+VCC</text>
+<line class="w" x1="150" y1="40" x2="150" y2="55"/><circle cx="150" cy="40" r="2.6" class="nd"/>
+<line class="w" x1="150" y1="40" x2="80" y2="40"/><line class="w" x1="80" y1="40" x2="80" y2="56"/>
+<rect class="w" x="73" y="56" width="14" height="26"/><text x="52" y="74">R1</text>
+<line class="w" x1="80" y1="82" x2="80" y2="92"/><circle cx="80" cy="92" r="2.6" class="nd"/>
+<line class="w" x1="80" y1="92" x2="110" y2="92"/>
+<line class="w" x1="80" y1="92" x2="80" y2="100"/><rect class="w" x="73" y="100" width="14" height="26"/><text x="52" y="118">R2</text>
+<line class="w" x1="80" y1="126" x2="80" y2="138"/><circle cx="80" cy="138" r="2.6" class="nd"/>
+<line class="w" x1="80" y1="138" x2="110" y2="138"/><line class="w" x1="110" y1="138" x2="110" y2="120"/>
+<line class="w" x1="80" y1="138" x2="80" y2="148"/>
+<line class="w" x1="72" y1="148" x2="88" y2="148"/><line class="w" x1="72" y1="154" x2="88" y2="154"/><text x="52" y="156">C</text>
+<line class="w" x1="80" y1="154" x2="80" y2="160"/>${gnd(80,160)}
+<line class="w" x1="190" y1="92" x2="250" y2="92"/><circle cx="250" cy="92" r="3.6" class="probe"/>
+<text x="216" y="85" class="pl">Vout (3)</text></svg>`,
+
+CLIP:`<svg class="sch" viewBox="0 0 300 165" role="img">
+<line class="w" x1="20" y1="55" x2="55" y2="55"/><text x="6" y="51">Vin</text>
+<rect class="w" x="55" y="48" width="44" height="14"/><text x="68" y="43">R</text>
+<line class="w" x1="99" y1="55" x2="175" y2="55"/><circle cx="160" cy="55" r="2.6" class="nd"/>
+<line class="w" x1="160" y1="55" x2="160" y2="78"/>
+<polygon class="w" points="150,78 170,78 160,96"/><line class="w" x1="150" y1="96" x2="170" y2="96"/>
+<text x="174" y="90">D</text>
+<line class="w" x1="160" y1="96" x2="160" y2="118"/>${gnd(160,118)}
+<line class="w" x1="175" y1="55" x2="250" y2="55"/><circle cx="250" cy="55" r="3.6" class="probe"/>
+<text x="226" y="48" class="pl">Vout</text></svg>`,
+
+CE:`<svg class="sch" viewBox="0 0 300 195" role="img">
+<line class="w" x1="40" y1="22" x2="262" y2="22"/><text x="226" y="16">+VCC</text>
+<line class="w" x1="190" y1="22" x2="190" y2="40"/><rect class="w" x="183" y="40" width="14" height="30"/><text x="200" y="60">RC</text>
+<line class="w" x1="190" y1="70" x2="190" y2="92"/><circle cx="190" cy="92" r="2.6" class="nd"/>
+<line class="w" x1="100" y1="22" x2="100" y2="40"/><rect class="w" x="93" y="40" width="14" height="28"/><text x="78" y="36">R1</text>
+<line class="w" x1="100" y1="68" x2="100" y2="92"/><circle cx="100" cy="92" r="2.6" class="nd"/>
+<line class="w" x1="100" y1="92" x2="100" y2="108"/><rect class="w" x="93" y="108" width="14" height="28"/><text x="78" y="150">R2</text>
+<line class="w" x1="100" y1="136" x2="100" y2="160"/>${gnd(100,160)}
+<circle class="w" cx="150" cy="92" r="20"/>
+<line class="w" x1="140" y1="80" x2="140" y2="104"/>
+<line class="w" x1="100" y1="92" x2="140" y2="92"/>
+<line class="w" x1="140" y1="86" x2="170" y2="68"/><line class="w" x1="170" y1="68" x2="170" y2="40"/><line class="w" x1="170" y1="40" x2="190" y2="40"/>
+<line class="w" x1="140" y1="98" x2="166" y2="114"/>
+<polygon class="nd" points="158,107 166,114 156,113"/>
+<line class="w" x1="166" y1="114" x2="166" y2="148"/>
+<text x="172" y="100">Q</text>
+<circle cx="166" cy="148" r="2.6" class="nd"/>
+<rect class="w" x="159" y="150" width="14" height="26"/><text x="176" y="168">RE</text>
+<line class="w" x1="166" y1="176" x2="166" y2="182"/>${gnd(166,182)}
+<line class="w" x1="20" y1="92" x2="60" y2="92"/><line class="w" x1="60" y1="86" x2="60" y2="98"/><line class="w" x1="66" y1="86" x2="66" y2="98"/>
+<line class="w" x1="66" y1="92" x2="100" y2="92"/><text x="28" y="86">Vin</text><text x="54" y="112">Cin</text>
+<line class="w" x1="190" y1="92" x2="220" y2="92"/><line class="w" x1="220" y1="86" x2="220" y2="98"/><line class="w" x1="226" y1="86" x2="226" y2="98"/>
+<line class="w" x1="226" y1="92" x2="262" y2="92"/><circle cx="262" cy="92" r="3.6" class="probe"/><text x="236" y="86" class="pl">Vout</text>
+</svg>`,
+
+DIFF:`<svg class="sch" viewBox="0 0 300 195" role="img">
+<line class="w" x1="40" y1="22" x2="260" y2="22"/><text x="226" y="16">+VCC</text>
+<line class="w" x1="95" y1="22" x2="95" y2="40"/><rect class="w" x="88" y="40" width="14" height="26"/><text x="64" y="58">RC1</text>
+<line class="w" x1="95" y1="66" x2="95" y2="95"/><circle cx="95" cy="78" r="2.6" class="probe"/><text x="68" y="78" class="pl">Vo1</text>
+<line class="w" x1="205" y1="22" x2="205" y2="40"/><rect class="w" x="198" y="40" width="14" height="26"/><text x="216" y="58">RC2</text>
+<line class="w" x1="205" y1="66" x2="205" y2="95"/><circle cx="205" cy="78" r="2.6" class="probe"/><text x="210" y="78" class="pl">Vo2</text>
+<circle class="w" cx="120" cy="102" r="16"/><circle class="w" cx="180" cy="102" r="16"/>
+<line class="w" x1="112" y1="94" x2="112" y2="110"/><line class="w" x1="188" y1="94" x2="188" y2="110"/>
+<line class="w" x1="95" y1="95" x2="112" y2="95"/><line class="w" x1="112" y1="95" x2="112" y2="98"/>
+<line class="w" x1="205" y1="95" x2="188" y2="95"/><line class="w" x1="188" y1="95" x2="188" y2="98"/>
+<line class="w" x1="60" y1="102" x2="112" y2="102"/><text x="36" y="106">V1</text>
+<line class="w" x1="188" y1="102" x2="240" y2="102"/><text x="244" y="106">V2</text>
+<line class="w" x1="112" y1="108" x2="124" y2="120"/><line class="w" x1="188" y1="108" x2="176" y2="120"/>
+<line class="w" x1="124" y1="120" x2="176" y2="120"/><circle cx="150" cy="120" r="2.6" class="nd"/>
+<line class="w" x1="150" y1="120" x2="150" y2="136"/><rect class="w" x="143" y="136" width="14" height="26"/><text x="160" y="154">RE</text>
+<line class="w" x1="150" y1="162" x2="150" y2="172"/><text x="132" y="188">−VEE</text>
+<line class="w" x1="124" y1="172" x2="176" y2="172"/></svg>`,
+
+DIVIDER:`<svg class="sch" viewBox="0 0 240 175" role="img">
+<line class="w" x1="120" y1="18" x2="120" y2="38"/><text x="100" y="14">+12V</text>
+<rect class="w" x="113" y="38" width="14" height="32"/><text x="132" y="58">R1 2k</text>
+<line class="w" x1="120" y1="70" x2="120" y2="86"/><circle cx="120" cy="86" r="2.6" class="nd"/>
+<line class="w" x1="120" y1="86" x2="165" y2="86"/><circle cx="165" cy="86" r="3.6" class="probe"/><text x="144" y="80" class="pl">Vout</text>
+<line class="w" x1="120" y1="86" x2="120" y2="102"/>
+<rect class="w" x="113" y="102" width="14" height="32"/><text x="132" y="122">R2 1k</text>
+<line class="w" x1="120" y1="134" x2="120" y2="150"/>${gnd(120,150)}</svg>`,
+};
+
+const Q = [
+/* ---------- PHẦN 1 ---------- */
+{p:1,q:"Đại lượng nào cho biết mức độ gần đúng giữa giá trị đo được và giá trị đúng của đại lượng cần đo?",o:["Độ chính xác (accuracy)","Độ rõ (precision)","Độ phân giải (resolution)","Độ nhạy (sensitivity)"],a:0,e:"Độ chính xác đo độ gần với giá trị đúng. Độ rõ chỉ phản ánh khả năng lặp lại (các lần đo giống nhau), không bảo đảm đúng."},
+{p:1,q:"Vôn kế đặt thang 100V, độ chính xác ±4% theo độ lệch toàn thang (FSD), số đọc là 25V. Khoảng sai số tuyệt đối của phép đo là?",o:["±1V","±4V","±10V","±0,25V"],a:1,e:"Sai số tính theo % của toàn thang: 4% × 100V = ±4V → giá trị thực nằm trong 21–29V. Đây chính là lý do nên đo gần cuối thang."},
+{p:1,q:"Vì sao nên thực hiện phép đo ở giá trị càng gần cuối thang đo càng tốt?",o:["Để kim quay nhanh hơn","Để giảm sai số tương đối của phép đo","Để tăng tuổi thọ đồng hồ","Để tránh nhiễu điện từ"],a:1,e:"Sai số được tính theo % của toàn thang (FSD). Đo ở đầu thang khiến sai số tương đối so với số đọc rất lớn (ví dụ ±4% FSD = ±16% khi đọc 25V)."},
+{p:1,q:"Độ phân giải (resolution) của một thiết bị đo là gì?",o:["Giá trị lớn nhất đo được","Thay đổi nhỏ nhất của đại lượng đo mà thiết bị đáp ứng được","Sai số trung bình của phép đo","Tốc độ lấy mẫu của thiết bị"],a:1,e:"Độ phân giải là vạch chia nhỏ nhất mà thiết bị phân biệt được. Đồng hồ kim 100 vạch ở thang 1mA có độ phân giải 10µA; đồng hồ số là 1 chữ số."},
+{p:1,q:"Độ nhạy của một vôn kế thường được biểu diễn theo đơn vị nào?",o:["V/Hz","Ω/V","A/V","dB/octave"],a:1,e:"Độ nhạy vôn kế cho theo Ω/V. Vôn kế FSD 50µA có 20kΩ/V, loại FSD 100µA có 10kΩ/V → loại 20kΩ/V nhạy hơn."},
+{p:1,q:"Trong hai vôn kế sau, loại nào nhạy hơn (ít ảnh hưởng quá tải hơn)?",o:["10kΩ/V","20kΩ/V","Cả hai như nhau","Không xác định được"],a:1,e:"Độ nhạy càng cao (Ω/V lớn) thì trở kháng vào càng lớn → rẽ dòng từ mạch ít hơn → sai số quá tải nhỏ hơn."},
+{p:1,q:"Sai số do thị sai (đọc nhầm khi kim nằm giữa hai vạch chia) thuộc loại sai số nào?",o:["Sai số ngẫu nhiên","Sai số hệ thống do môi trường","Sai số thô (do người đọc)","Sai số lượng tử hóa"],a:2,e:"Sai số do đọc/thị sai là sai số thô. Đồng hồ số hiển thị bằng chữ số nên không có loại sai số này."},
+{p:1,q:"Loại sai số 'có cùng dạng, lặp lại và không đổi' được gọi là?",o:["Sai số ngẫu nhiên","Sai số hệ thống","Sai số thô","Sai số tuyệt đối"],a:1,e:"Sai số hệ thống ổn định, có quy luật (do thiết bị đo hoặc do môi trường đo). Sai số ngẫu nhiên thì thay đổi không quy luật."},
+{p:1,q:"Cách nào giúp giảm sai số ngẫu nhiên trong phép đo?",o:["Hiệu chuẩn lại thiết bị","Tăng số lần đo rồi lấy giá trị trung bình","Đổi sang thang đo cao hơn","Dùng que đo tốt hơn"],a:1,e:"Sai số ngẫu nhiên không khử được bằng hiệu chuẩn; chỉ giảm bằng cách đo nhiều lần và lấy trung bình (suy luận thống kê)."},
+{p:1,q:"Nếu điện trở R có sai số ±10% và dòng I có sai số ±5%, thì công suất P = I²R có sai số giới hạn khoảng?",o:["±10%","±15%","±20%","±25%"],a:2,e:"Sai số giới hạn cộng dồn: I² đóng góp 5%+5%, cộng R 10% → 5+5+10 = ±20%."},
+{p:1,q:"Ưu điểm nổi bật của đồng hồ vạn năng SỐ so với loại chỉ thị kim là?",o:["Quan sát phóng/nạp tụ tốt hơn","Trở kháng vào rất cao (~10MΩ) nên ít sai số quá tải","Đáp ứng nhanh với linh kiện bán dẫn","Giá thành rẻ hơn"],a:1,e:"Đồng hồ số có trở kháng vào ~10MΩ, gần như không đổi theo thang đo, nên sai số quá tải không đáng kể. Quan sát tụ/đáp ứng nhanh lại là ưu điểm của đồng hồ kim."},
+{p:1,q:"Khi đo dòng điện, đồng hồ phải được mắc như thế nào với mạch?",o:["Song song với tải","Nối tiếp với mạch","Song song với nguồn","Tùy ý"],a:1,e:"Đo dòng → mắc nối tiếp (dòng chạy qua đồng hồ). Đo áp → mắc song song. Để nhầm sẽ gây sai hoặc hỏng đồng hồ."},
+{p:1,q:"Điều gì xảy ra nếu đặt nhầm đồng hồ ở thang đo dòng điện rồi đi đo điện áp?",o:["Không sao, chỉ sai số","Đồng hồ có thể bị hỏng","Tự động chuyển thang","Báo giá trị âm"],a:1,e:"Thang đo dòng có trở kháng rất nhỏ; mắc vào nguồn áp sẽ tạo dòng lớn làm hỏng đồng hồ. Phải chọn đúng chức năng/đại lượng trước khi đo."},
+{p:1,q:"Loại đồng hồ nào quan sát được sự phóng/nạp của tụ điện rõ hơn?",o:["Đồng hồ số","Đồng hồ chỉ thị kim (tương tự)","Cả hai như nhau","Không loại nào"],a:1,e:"Đại lượng biến thiên chậm như nạp tụ được kim quan sát trực quan; đồng hồ số khó hiển thị quá trình thay đổi chậm này."},
+{p:1,q:"Sóng nào của máy phát sóng chức năng thích hợp để kiểm tra độ tuyến tính của mạch khuếch đại?",o:["Sóng sin","Sóng vuông","Sóng tam giác","Sóng răng cưa"],a:2,e:"Sóng tam giác có cạnh thẳng; nếu mạch phi tuyến, cạnh sẽ bị méo cong, dễ nhận ra trên máy hiện sóng."},
+{p:1,q:"Sóng vuông từ máy phát sóng chức năng thường dùng để kiểm tra điều gì của mạch khuếch đại?",o:["Hệ số khuếch đại một chiều","Đáp ứng tần số thấp và cao","Công suất ra","Trở kháng vào"],a:1,e:"Đỉnh xung bị nghiêng → đáp ứng tần thấp kém; cạnh lên/xuống chậm → đáp ứng tần cao kém. Sóng vuông giàu hài nên bộc lộ cả hai."},
+{p:1,q:"Hai loại máy hiện sóng cơ bản là?",o:["Một tia và hai tia","Tương tự (CRO) và số (DSO)","Analog và RF","Để bàn và cầm tay"],a:1,e:"CRO (ống tia âm cực) là loại tương tự; DSO là máy hiện sóng số có khả năng lưu trữ dạng sóng."},
+{p:1,q:"Núm Time/div trên máy hiện sóng dùng để điều chỉnh gì?",o:["Biên độ theo trục dọc","Khoảng thời gian trên mỗi vạch chia (gốc thời gian)","Độ sáng vệt sáng","Mức kích khởi"],a:1,e:"Time/div đặt tỉ lệ thời gian trục ngang; Volt/div đặt tỉ lệ biên độ trục dọc."},
+{p:1,q:"Máy hiện sóng về cơ bản là thiết bị đo đại lượng nào theo thời gian?",o:["Dòng điện","Điện áp","Công suất","Điện trở"],a:1,e:"Máy hiện sóng đo điện áp. Muốn đo dòng/điện trở phải biến đổi chúng thành điện áp (qua điện trở cố định, nguồn dòng…)."},
+{p:1,q:"Mẫu hình Lissajous trên máy hiện sóng được dùng để?",o:["Đo công suất","So sánh tần số và pha giữa hai tín hiệu","Hiệu chỉnh độ sáng","Đo điện trở"],a:1,e:"Đưa hai tín hiệu vào kênh X và Y, hình Lissajous cho biết tỉ số tần số và độ lệch pha giữa chúng."},
+{p:1,q:"SPICE là gì?",o:["Một loại vi điều khiển","Phần mềm/thuật toán mô phỏng mạch điện tử","Chuẩn giao tiếp nối tiếp","Một họ IC ổn áp"],a:1,e:"SPICE = Simulation Program with Integrated Circuit Emphasis — nền tảng mô phỏng mạch, cho phép phân tích DC, AC, quá độ…"},
+{p:1,q:"Phần mềm mô phỏng và vẽ mạch được dùng xuyên suốt trong giáo trình này là?",o:["Multisim","Proteus","Altium","LTspice"],a:1,e:"Giáo trình hướng dẫn mô phỏng trên Proteus Design Suite 8.x, gồm cả vẽ sơ đồ nguyên lý và mô phỏng đồ thị (Graph)."},
+{p:1,q:"PCB là viết tắt của?",o:["Power Control Board","Printed Circuit Board (mạch in)","Programmable Chip Block","Passive Component Bus"],a:1,e:"PCB = bo mạch in, nơi các đường dẫn đồng được in sẵn để hàn linh kiện."},
+{p:1,q:"Đặc điểm của một mối hàn đạt yêu cầu là?",o:["Thiếc xỉn màu, gồ ghề","Bóng, ngấu thiếc, dạng hình nón đều","Nhiều thiếc phủ kín chân","Mối hàn to và lồi cao"],a:1,e:"Mối hàn tốt thì bóng, ngấu đều, hình nón ôm chân linh kiện. Mối hàn khô/nguội (xỉn, gồ ghề) dễ gây tiếp xúc kém."},
+{p:1,q:"Khi hàn, để mỏ hàn quá nóng hoặc giữ quá lâu sẽ?",o:["Làm mối hàn đẹp hơn","Làm hỏng linh kiện hoặc bong đường mạch in","Tăng độ bám của thiếc","Không ảnh hưởng gì"],a:1,e:"Nhiệt quá mức làm chết linh kiện bán dẫn và làm bong/tróc lớp đồng của mạch in. Cần hàn dứt khoát, đủ nhiệt."},
+{p:1,q:"Chức năng đo thông mạch của đồng hồ số: khi hai điểm thông nhau thì?",o:["Hiển thị số lớn","Đồng hồ phát ra tiếng kêu (beep)","Báo giá trị âm","Tắt màn hình"],a:1,e:"Chế độ đo thông mạch dựa trên thang đo điện trở nhỏ; nếu thông mạch (điện trở ~0) đồng hồ kêu để báo nhanh."},
+{p:1,q:"Khi đo điện áp một chiều bằng đồng hồ, que đỏ và que đen cắm vào đâu?",o:["Đỏ vào COM, đen vào VΩmA","Đỏ vào VΩmA (cực +), đen vào COM (cực −)","Cả hai vào COM","Tùy ý, không quan trọng"],a:1,e:"Que đỏ cắm lỗ 'VΩmA' nối cực dương, que đen vào 'COM'. Đặt ngược que (với DC) đồng hồ sẽ báo giá trị âm."},
+{p:1,q:"Ngưỡng độ nhạy của hệ thống đo ứng với tỉ số tín hiệu trên nhiễu (S/N) bằng?",o:["10 (20 dB)","1 (tức 0 dB)","0,5","100"],a:1,e:"Ngưỡng độ nhạy là mức tín hiệu nhỏ nhất phát hiện được, ứng với S/N = 1 hay 0 dB; nhỏ hơn nữa thì tín hiệu chìm trong nhiễu."},
+{p:1,q:"Nếu nhiễu có tần số CAO hơn phổ tần của tín hiệu cần đo, ta nên dùng bộ lọc nào để chặn nhiễu?",o:["Lọc thông cao","Lọc thông thấp","Lọc thông dải","Lọc chặn dải"],a:1,e:"Nhiễu tần cao hơn tín hiệu → lọc thông thấp cho tín hiệu qua, chặn nhiễu. Ngược lại (nhiễu tần thấp) thì dùng lọc thông cao."},
+
+/* ---------- PHẦN 2: op-amp / ổn áp / hạn biên / dao động ---------- */
+{p:2,q:"IC khuếch đại thuật toán (op-amp) được dùng trong các bài mô phỏng là loại nào?",o:["LM358","µA741","TL072","LM324"],a:1,e:"Giáo trình dùng op-amp µA741 (nguồn nuôi ±15V) cho các mạch khuếch đại đảo, không đảo, cộng, trừ, so sánh…"},
+{p:2,q:"Hệ số khuếch đại của mạch khuếch đại ĐẢO dùng op-amp lý tưởng là?",o:["K = 1 + R2/R1","K = −R2/R1","K = R1/R2","K = R1·R2"],a:1,e:"Mạch đảo: K = −Rf/Rin = −R2/R1. Dấu trừ thể hiện tín hiệu ra ngược pha với vào."},
+{p:2,q:"Mạch khuếch đại đảo có R1 = 1kΩ, R2 = 22kΩ thì hệ số khuếch đại bằng?",o:["−22","−0,045","+23","−21"],a:0,e:"K = −R2/R1 = −22kΩ/1kΩ = −22 (khuếch đại 22 lần và đảo pha)."},
+{p:2,q:"Trong mạch khuếch đại đảo, tín hiệu ra so với tín hiệu vào?",o:["Đồng pha","Ngược pha (lệch 180°)","Lệch pha 90°","Lệch pha 45°"],a:1,e:"Tín hiệu đưa vào ngõ đảo (−), nên ngõ ra ngược pha 180° so với ngõ vào."},
+{p:2,q:"Hệ số khuếch đại của mạch khuếch đại KHÔNG ĐẢO dùng op-amp là?",o:["K = −R2/R1","K = 1 + R2/R1","K = R2/(R1+R2)","K = R1/R2"],a:1,e:"Mạch không đảo: K = 1 + Rf/R1, luôn ≥ 1 và tín hiệu ra đồng pha với vào."},
+{p:2,q:"Tín hiệu vào 1V, hệ số khuếch đại đặt K = 20, op-amp µA741 nuôi ±15V. Biên độ ra LỚN NHẤT đo được thực tế là?",o:["20V","≈ 15V (bị bão hòa quanh mức nguồn nuôi)","100V","1V"],a:1,e:"Về lý thuyết ra = 20V, nhưng ngõ ra op-amp không thể vượt nguồn nuôi nên bị bão hòa quanh ±13–15V. Đây là giới hạn do nguồn nuôi."},
+{p:2,q:"Với op-amp có hồi tiếp âm lý tưởng, điện áp giữa hai đầu vào (+) và (−) gần bằng?",o:["Bằng nguồn nuôi","Bằng 0V (đất ảo)","Bằng điện áp ra","Không xác định"],a:1,e:"Hồi tiếp âm giữ chênh lệch hai đầu vào ≈ 0V ('đất ảo'/short ảo). Cùng với trở kháng vào vô hạn, đây là 2 giả thiết nền để phân tích op-amp."},
+{p:2,q:"Trở kháng vào và trở kháng ra của op-amp lý tưởng lần lượt là?",o:["0 và vô cùng","Vô cùng lớn và ≈ 0","Bằng nhau","Đều bằng 0"],a:1,e:"Op-amp lý tưởng: trở kháng vào vô cùng lớn (không hút dòng vào), trở kháng ra ≈ 0 (giữ vững áp ra)."},
+{p:2,q:"Mạch trừ điện áp dùng op-amp còn được gọi là mạch?",o:["Khuếch đại đệm","Khuếch đại vi sai","Tích phân","So sánh"],a:1,e:"Mạch trừ khuếch đại hiệu hai điện áp đầu vào → đó là khuếch đại vi sai (differential)."},
+{p:2,q:"Mạch so sánh (comparator) dùng op-amp hoạt động ở chế độ?",o:["Có hồi tiếp âm, ra tuyến tính","Vòng hở (không hồi tiếp âm), ra bão hòa ±Vsat","Hồi tiếp dương 100%","Chế độ tích phân"],a:1,e:"Comparator chạy vòng hở; hệ số khuếch đại cực lớn khiến ngõ ra bão hòa về +Vsat hoặc −Vsat tùy đầu nào lớn hơn."},
+{p:2,q:"Trong mạch TÍCH PHÂN dùng op-amp, phần tử hồi tiếp (nối ngõ ra về ngõ đảo) là?",o:["Điện trở","Tụ điện","Cuộn cảm","Diode"],a:1,e:"Tích phân: R ở ngõ vào, C ở nhánh hồi tiếp → Vout = −(1/RC)∫Vin dt. Mạch vi phân thì ngược lại (C vào, R hồi tiếp)."},
+{p:2,q:"Mạch trigger Schmitt có đặc điểm gì khác mạch so sánh thường?",o:["Không có hồi tiếp","Có trễ (hysteresis) với hai ngưỡng chuyển","Khuếch đại tuyến tính","Ra hình sin"],a:1,e:"Trigger Schmitt dùng hồi tiếp dương tạo hai ngưỡng đóng/cắt khác nhau (trễ) → chống nhiễu, sửa dạng tín hiệu thành xung vuông gọn."},
+{p:2,q:"Mạch chỉnh lưu cầu biến đổi điện áp xoay chiều thành một chiều dùng mấy diode?",o:["1 diode","2 diode","4 diode","6 diode"],a:2,e:"Chỉnh lưu cầu dùng 4 diode, cho chỉnh lưu cả hai nửa chu kỳ (full-wave)."},
+{p:2,q:"Tụ lọc mắc sau mạch chỉnh lưu có tác dụng chính là?",o:["Tăng điện áp ra","San phẳng điện áp, giảm độ gợn (ripple)","Hạ tần số","Bảo vệ quá dòng"],a:1,e:"Tụ lọc nạp/xả làm điện áp một chiều bằng phẳng hơn, giảm thành phần gợn sóng còn lại sau chỉnh lưu."},
+{p:2,q:"Trong mạch ổn áp dùng diode Zener, diode Zener được phân cực như thế nào?",o:["Thuận","Ngược (làm việc ở vùng đánh thủng Zener)","Không phân cực","Lúc thuận lúc ngược"],a:1,e:"Zener làm việc ở vùng đánh thủng ngược, nơi điện áp trên nó gần như cố định (Vz) → giữ ổn định áp ra."},
+{p:2,q:"Trong mạch ổn áp Zener cơ bản, điện trở hạn dòng được mắc?",o:["Song song với Zener","Nối tiếp với Zener (Zener song song với tải)","Song song với tải","Nối tiếp với tải"],a:1,e:"Điện trở nối tiếp gánh phần áp dư và hạn dòng qua Zener; Zener mắc song song tải để 'ghim' áp ra ≈ Vz."},
+{p:2,q:"IC ổn áp LM7805 cho điện áp ra cố định bằng?",o:["+5V","−5V","+12V","+3,3V"],a:0,e:"Họ 78xx là ổn áp dương: 7805 → +5V. Hai chữ số cuối là mức áp ra."},
+{p:2,q:"IC LM7905 cho điện áp ra bằng?",o:["+5V","−5V","+9V","−9V"],a:1,e:"Họ 79xx là ổn áp âm: 7905 → −5V. Thường dùng cặp 7805/7905 để tạo nguồn đối xứng ±5V."},
+{p:2,q:"Để IC 78xx ổn áp đúng, điện áp đầu vào phải?",o:["Bằng đúng điện áp ra","Lớn hơn áp ra một mức tối thiểu (điện áp rơi dropout)","Nhỏ hơn áp ra","Là điện áp xoay chiều"],a:1,e:"Cần Vin > Vout + dropout (thường ~2–3V) để IC duy trì ổn áp. Nếu Vin tụt quá thấp, áp ra sẽ sụt theo."},
+{p:2,q:"Mạch hạn chế biên độ (clipper/limiter) dùng linh kiện chính là?",o:["Transistor","Diode","Tụ điện","Cuộn cảm"],a:1,e:"Clipper dùng diode (kết hợp nguồn/điện trở) để cắt bớt phần biên độ vượt ngưỡng của tín hiệu."},
+{p:2,q:"Mạch hạn chế HAI PHÍA sẽ cắt phần nào của tín hiệu?",o:["Chỉ đỉnh dương","Chỉ đỉnh âm","Cả đỉnh dương và đỉnh âm vượt ngưỡng","Phần giữa tín hiệu"],a:2,e:"Hạn chế hai phía giới hạn cả nửa dương lẫn nửa âm, giữ biên độ trong khoảng [−V, +V] đặt trước."},
+{p:2,q:"IC tạo dao động (timer) thông dụng được dùng trong bài tạo dao động là?",o:["LM393","NE555","CD4017","LM386"],a:1,e:"NE555 là IC định thời/tạo dao động kinh điển, dùng tạo xung vuông ở chế độ astable (đa hài tự dao động)."},
+{p:2,q:"Mạch dao động đa hài (astable) tạo ra tín hiệu gì?",o:["Một xung duy nhất rồi dừng","Dãy xung vuông liên tục, không có trạng thái ổn định bền","Sóng sin thuần","Điện áp một chiều"],a:1,e:"Astable không có trạng thái bền nào, liên tục lật giữa hai mức → phát xung vuông tuần hoàn."},
+{p:2,q:"Ở mạch NE555 chế độ astable, tần số dao động phụ thuộc vào?",o:["Chỉ điện áp nguồn","Các điện trở R và tụ C bên ngoài","Nhiệt độ môi trường","Tải đầu ra"],a:1,e:"f ≈ 1,44 / [(R1 + 2R2)·C]. Thay đổi R, C sẽ đổi tần số và chu kỳ làm việc của xung ra."},
+{p:2,q:"Tín hiệu ra của IC NE555 được lấy ở chân số mấy?",o:["Chân 1","Chân 3","Chân 5","Chân 8"],a:1,e:"Chân 3 (OUTPUT) là ngõ ra xung của NE555. Chân 1 là GND, chân 8 là VCC."},
+
+/* ---------- PHẦN 2: transistor / số / 8051 / Arduino ---------- */
+{p:2,q:"Mạch khuếch đại mắc EMITTER chung (CE) có đặc điểm gì?",o:["Khuếch đại cả áp và dòng, đảo pha 180°","Hệ số áp ≈ 1, không đảo pha","Chỉ khuếch đại dòng","Trở kháng vào rất thấp"],a:0,e:"CE khuếch đại cả áp lẫn dòng (công suất lớn) và đảo pha tín hiệu ra so với vào — cấu hình khuếch đại phổ biến nhất."},
+{p:2,q:"Mạch mắc COLLECTOR chung (CC, lặp emitter) thường dùng làm gì?",o:["Tầng khuếch đại áp lớn","Tầng đệm (phối hợp trở kháng), hệ số áp ≈ 1","Mạch dao động","Mạch so sánh"],a:1,e:"CC có trở kháng vào cao, trở kháng ra thấp, hệ số áp ≈1, đồng pha → lý tưởng làm tầng đệm/cách ly trở kháng."},
+{p:2,q:"Mạch cộng hai số nhị phân 1 bit CÓ tính cả số nhớ vào dùng khối nào?",o:["Bộ bán cộng (half adder)","Bộ cộng đầy đủ (full adder)","Bộ so sánh","Bộ giải mã"],a:1,e:"Full adder có 3 ngõ vào (A, B, Cin) và 2 ngõ ra (S, Cout) — xử lý được số nhớ từ bit thấp hơn."},
+{p:2,q:"IC giải mã BCD sang LED 7 đoạn (loại anode chung) được dùng trong mạch là?",o:["74LS47","74LS90","74LS08","74LS00"],a:0,e:"74LS47 giải mã BCD → 7 đoạn với ngõ ra tích cực mức thấp, phù hợp LED 7 đoạn anode chung."},
+{p:2,q:"Mạch phân kênh (DEMUX) thực hiện chức năng gì?",o:["Gộp nhiều ngõ vào thành 1 ngõ ra","Đưa 1 ngõ vào tới 1 trong nhiều ngõ ra theo địa chỉ chọn","Đếm xung","So sánh hai số"],a:1,e:"DEMUX phân phối 1 đầu vào ra một trong nhiều đầu ra theo tổ hợp địa chỉ. MUX (hợp kênh) làm điều ngược lại."},
+{p:2,q:"Mạch ghi dịch (shift register) có chức năng cơ bản là?",o:["Cộng hai số","Dịch dữ liệu qua các tầng theo nhịp xung clock","Giải mã địa chỉ","Tạo dao động"],a:1,e:"Shift register dịch chuyển bit dữ liệu từ tầng này sang tầng kế tiếp mỗi nhịp clock — dùng đổi nối tiếp↔song song, làm trễ…"},
+{p:2,q:"Vi điều khiển họ MCS-51 được dùng trong các bài mô phỏng là?",o:["PIC16F877A","AT89C51","ATmega328","STM32F103"],a:1,e:"Giáo trình dùng AT89C51 (họ 8051 của Atmel/Intel), biên dịch bằng ASEM-51 trong Proteus."},
+{p:2,q:"Thạch anh dùng tạo dao động cho AT89C51 trong mạch đo nhiệt độ là?",o:["4MHz","8MHz","11,0592MHz","12MHz"],a:3,e:"Sơ đồ trong bài dùng thạch anh 12MHz (kèm tụ ~22pF/22µF cho mạch reset/dao động) cấp xung nhịp cho 8051."},
+{p:2,q:"Cảm biến nhiệt độ giao tiếp 1 dây (1-Wire) dùng trong bài là?",o:["LM35","DS18B20","DHT11","NTC"],a:1,e:"DS18B20 là cảm biến nhiệt số, giao tiếp 1-Wire (chỉ 1 chân dữ liệu). Trong bài nối với chân P3.7 của 8051."},
+{p:2,q:"Trình biên dịch mã nguồn cho AT89C51 được chọn trong Proteus là?",o:["Keil C","ASEM-51","SDCC","MPLAB"],a:1,e:"Bài chọn ASEM-51 làm trình hợp dịch (assembler) cho AT89C51 ngay trong môi trường Proteus."},
+{p:2,q:"Trên vi điều khiển 8051, hai chân RXD và TXD (truyền thông nối tiếp) là?",o:["P1.0 và P1.1","P3.0 và P3.1","P2.0 và P2.1","P0.0 và P0.1"],a:1,e:"P3.0 = RXD, P3.1 = TXD. Cổng P3 còn kiêm INT0/INT1 (P3.2/P3.3), T0/T1, WR/RD."},
+{p:2,q:"Hai chân ngắt ngoài INT0 và INT1 của 8051 nằm ở?",o:["P3.2 và P3.3","P3.0 và P3.1","P1.2 và P1.3","P2.2 và P2.3"],a:0,e:"INT0 = P3.2, INT1 = P3.3 — dùng cho ngắt ngoài, ví dụ đếm sự kiện hoặc đo tần số."},
+{p:2,q:"IC đệm dòng (Darlington) để điều khiển động cơ bước trong các bài là?",o:["L298","ULN2003A","L7805","74LS245"],a:1,e:"ULN2003A là mảng 7 transistor Darlington, đệm dòng cho cuộn dây động cơ bước; tín hiệu điều khiển từ vi điều khiển."},
+{p:2,q:"Để đảo chiều và điều khiển động cơ một chiều, mạch dùng IC cầu H nào?",o:["ULN2003A","L298","NE555","74LS90"],a:1,e:"L298 là IC cầu H đôi, cho phép đảo chiều và (kết hợp PWM) điều khiển tốc độ động cơ DC, dòng tải khá lớn."},
+{p:2,q:"Phương pháp điều khiển TỐC ĐỘ động cơ một chiều dùng trong bài là?",o:["Thay đổi tần số nguồn","Điều chế độ rộng xung (PWM)","Đổi cực tính","Mắc nối tiếp điện trở"],a:1,e:"PWM thay đổi tỉ lệ thời gian ON/OFF của xung cấp cho động cơ → thay đổi điện áp trung bình → đổi tốc độ, hiệu suất cao."},
+{p:2,q:"Bàn phím ma trận dùng trong bài ghép nối với AT89C51 có kích thước?",o:["4x4","4x3","3x3","2x2"],a:1,e:"Bàn phím 4x3 (4 hàng, 3 cột) được quét bằng kỹ thuật quét hàng/cột để nhận biết phím được nhấn."},
+{p:2,q:"Cảm biến siêu âm đo khoảng cách dùng trong các bài Arduino là?",o:["HC-SR501","SRF-04","TCS3200","MQ-2"],a:1,e:"SRF-04 (SRF04) phát/thu sóng siêu âm, đo thời gian dội để tính khoảng cách — dùng cho bài đo mức nước/bơm tự động."},
+
+/* ---------- PHẦN 3: breadboard ---------- */
+{p:3,q:"Bảng mạch cắm thử nghiệm (breadboard) được dùng để làm gì?",o:["Hàn cố định linh kiện","Lắp ráp và thử mạch nhanh mà không cần hàn","In sơ đồ mạch","Đo nhiệt độ linh kiện"],a:1,e:"Breadboard cho phép cắm/rút linh kiện, dây nối để thử nghiệm mạch nhanh, dễ sửa, không cần hàn."},
+{p:3,q:"Trên breadboard, các lỗ của đường ray nguồn (hai dải dài ở mép) được nối với nhau theo?",o:["Theo từng cụm 5 lỗ ngang","Dọc theo chiều dài của board (thành bus nguồn)","Không lỗ nào nối nhau","Theo đường chéo"],a:1,e:"Hai dải mép (thường đánh dấu +/−) nối thông suốt theo chiều dài, làm bus nguồn; khu giữa nối theo từng cụm 5 lỗ vuông góc với rãnh giữa."},
+{p:3,q:"Trong mạch đo tần số 2 digit lắp trên breadboard, IC đếm thập phân được dùng là?",o:["74LS47","74LS90","74LS08","NE555"],a:1,e:"74LS90 là bộ đếm thập phân (decade counter, chia 10) — đếm xung rồi đưa qua giải mã 74LS47 ra LED 7 đoạn."},
+{p:3,q:"IC 74LS08 trong mạch là loại cổng logic nào?",o:["Cổng OR","Cổng AND (4 cổng AND 2 ngõ vào)","Cổng NOT","Cổng XOR"],a:1,e:"74LS08 chứa 4 cổng AND 2 ngõ vào. Trong mạch đo tần số nó đóng vai trò 'cổng' cho xung đi qua trong khoảng thời gian chuẩn."},
+{p:3,q:"Khối 'cổng' (gate) trong mạch đo tần số có nhiệm vụ?",o:["Khuếch đại tín hiệu","Cho xung cần đo đi qua đúng trong một khoảng thời gian chuẩn (1s)","Tạo nguồn ổn áp","Hiển thị kết quả"],a:1,e:"Đếm số xung lọt qua cổng trong 1 giây chính bằng tần số (Hz). Vì vậy cần xung chuẩn thời gian (gốc thời gian) chính xác."},
+{p:3,q:"Khối tạo xung chuẩn (gốc thời gian) trong mạch đo tần số được xây dựng từ IC dao động?",o:["NE555 (kết hợp mạch chia tần)","74LS47","L298","µA741"],a:0,e:"NE555 tạo dao động, qua các tầng chia tần để cho xung chuẩn (ví dụ 1Hz) làm cửa thời gian cho phép đo."},
+{p:3,q:"Trước khi cấp nguồn cho mạch vừa lắp xong trên breadboard, nên làm gì trước tiên?",o:["Bật nguồn ngay để kiểm tra","Kiểm tra (đo nguội) cực tính nguồn và các đường nối","Tháo bớt linh kiện","Hàn lại tất cả các chân"],a:1,e:"Kiểm tra nguội (chưa cấp nguồn): rà cực tính +/−, ngắn mạch, sai chân… để tránh cháy linh kiện khi đóng điện."},
+{p:3,q:"Các bài lắp ráp dùng vi điều khiển trong Phần 3 chủ yếu thuộc họ?",o:["AVR (ATmega)","PIC","MCS-8051 (AT89C51)","ARM Cortex-M"],a:2,e:"Phần 3 lắp các mạch ứng dụng dùng họ MCS-8051 (AT89C51): phát xung, đo tần số LCD, phát nhạc, điều khiển động cơ, đo nhiệt độ."},
+
+/* ---------- PHẦN 4: máy tăng âm PCB ---------- */
+{p:4,q:"Mạch tăng âm trong Phần 4 được lắp ráp trên?",o:["Breadboard","Tấm mạch in (PCB) cho sẵn","Phần mềm mô phỏng","Bo test vạn năng"],a:1,e:"Phần 4 là bài hàn nối, lắp ráp mạch khuếch đại âm tần từ các transistor rời lên tấm mạch in (PCB) có sẵn."},
+{p:4,q:"Thứ tự các tầng trong máy tăng âm dùng transistor là?",o:["Công suất → đệm → tiền khuếch đại","Tiền khuếch đại → đệm → công suất","Đệm → công suất → tiền khuếch đại","Tiền khuếch đại → công suất → đệm"],a:1,e:"Tín hiệu đi qua: tầng tiền khuếch đại (nhỏ, ít méo) → tầng đệm (phối hợp trở kháng) → tầng công suất (đưa ra loa)."},
+{p:4,q:"Tầng tiền khuếch đại trong máy tăng âm của bài được mắc theo kiểu?",o:["Emitter chung đơn","Vi sai (differential)","Collector chung","Cascode"],a:1,e:"Tầng tiền khuếch đại mắc kiểu vi sai (differential) — khử trôi điểm công tác và nhiễu đồng pha, khuếch đại tín hiệu hiệu."},
+{p:4,q:"Tầng đệm (khuếch đại đệm) giữa tiền khuếch đại và tầng công suất có vai trò?",o:["Tăng méo tín hiệu","Phối hợp trở kháng giữa hai tầng","Tạo dao động","Ổn áp nguồn"],a:1,e:"Tầng đệm cách ly và phối hợp trở kháng (ra cao của tiền KĐ với vào thấp của tầng công suất), tránh sụt tín hiệu."},
+{p:4,q:"Tầng khuếch đại công suất trong máy tăng âm thường mắc theo kiểu nào để đưa công suất lớn ra loa?",o:["Vi sai","Đẩy kéo (push-pull)","Collector chung đơn","Base chung"],a:1,e:"Tầng công suất thường dùng cặp transistor đẩy kéo (push-pull, lớp AB) để cung cấp dòng lớn ra loa với hiệu suất tốt và ít méo."},
+{p:4,q:"Khi đo và hiệu chỉnh tầng khuếch đại vi sai, ta quan tâm đến các giá trị nào?",o:["Tần số dao động","Điện áp một chiều tại các điểm (điểm làm việc tĩnh)","Màu sắc LED","Tốc độ động cơ"],a:1,e:"Cần đo các điện áp DC (phân cực) tại chân transistor để chỉnh điểm làm việc tĩnh cho đúng trước khi đưa tín hiệu xoay chiều vào."},
+{p:4,q:"Đặc tuyến biên-tần (biên độ theo tần số) của một tầng khuếch đại cho biết điều gì?",o:["Công suất tiêu thụ","Dải thông / đáp ứng tần số của mạch","Nhiệt độ làm việc","Độ bền cơ học"],a:1,e:"Đặc tuyến biên-tần thể hiện hệ số khuếch đại thay đổi theo tần số → xác định dải thông (băng thông) và tần số cắt của mạch."},
+{p:4,q:"Trước khi hàn linh kiện lên mạch in, bước cần làm là?",o:["Cấp nguồn cho mạch","Đo thử và kiểm tra linh kiện của mạch","Gắn loa vào","Nạp chương trình"],a:1,e:"Đo kiểm linh kiện (điện trở, tụ, transistor…) trước khi hàn để loại linh kiện hỏng, tránh phải gỡ hàn lại về sau."},
+
+/* ---------- PHẦN 5: IoT ESP32 ---------- */
+{p:5,q:"KIT thí nghiệm IoT trong Phần 5 sử dụng vi điều khiển nào?",o:["AT89C51","Arduino UNO (ATmega328)","ESP32","PIC16F"],a:2,e:"Phần 5 thực hành trên KIT IoT dùng Arduino ESP32 (bản WeMos D1 R32) — tích hợp WiFi/Bluetooth, nhiều chân GPIO/ADC/PWM."},
+{p:5,q:"Điểm nổi bật của chip ESP32 so với vi điều khiển 8051 là?",o:["Chạy chậm hơn","Tích hợp sẵn WiFi và Bluetooth","Không lập trình được","Chỉ có 1 chân I/O"],a:1,e:"ESP32 tích hợp WiFi + Bluetooth cùng CPU 32-bit mạnh, rất hợp ứng dụng IoT (kết nối mạng, đọc cảm biến, điều khiển từ xa)."},
+{p:5,q:"Module điều khiển động cơ bước trên KIT IoT dùng IC nào?",o:["L298","ULN2003A","NE555","µA741"],a:1,e:"Module động cơ bước trên KIT IoT dùng ULN2003A đệm dòng cho các cuộn dây, nhận tín hiệu điều khiển bước từ ESP32."},
+{p:5,q:"Trong bài điều khiển máy bơm nước tự động, đại lượng được cảm biến để quyết định bật/tắt bơm là?",o:["Nhiệt độ","Mức nước (đo bằng cảm biến siêu âm)","Ánh sáng","Độ ẩm không khí"],a:1,e:"Cảm biến siêu âm đo khoảng cách tới mặt nước → suy ra mức nước → ESP32 điều khiển bơm bật/tắt tự động theo ngưỡng."},
+{p:5,q:"Để điều khiển tốc độ động cơ một chiều trên ESP32, kỹ thuật được dùng là?",o:["Đổi tần số thạch anh","Điều chế độ rộng xung (PWM)","Thay đổi điện trở tải","Đảo chiều liên tục"],a:1,e:"ESP32 xuất PWM ra chân điều khiển; thay đổi chu kỳ làm việc (duty) → đổi điện áp trung bình → đổi tốc độ động cơ DC."},
+{p:5,q:"Phần mềm/môi trường thường dùng để viết và nạp chương trình cho KIT Arduino ESP32 là?",o:["ASEM-51","Arduino IDE (qua cổng USB)","Proteus","MATLAB"],a:1,e:"Code cho ESP32 viết và nạp qua Arduino IDE (ngôn ngữ kiểu C/C++), nạp qua cổng USB của KIT."},
+{p:5,q:"Để hiển thị dữ liệu cảm biến tại chỗ trên KIT IoT, bài dùng thiết bị hiển thị nào?",o:["Máy in","LCD (ví dụ LCD 16x2)","Máy hiện sóng","LED 7 đoạn 4 digit"],a:1,e:"Dữ liệu cảm biến được hiển thị trên LCD (16x2) ngay trên KIT, hoặc gửi lên máy tính để theo dõi."},
+
+/* ===== CÂU CÓ SƠ ĐỒ MẠCH — Phần 2 (op-amp) ===== */
+{p:2,dia:'INV',q:"Sơ đồ dưới đây là mạch gì?",o:["Khuếch đại không đảo","Khuếch đại đảo","Mạch so sánh","Mạch tích phân"],a:1,e:"Tín hiệu qua R1 vào ngõ đảo (−), R2 hồi tiếp từ ngõ ra về ngõ (−), ngõ (+) nối đất → mạch khuếch đại ĐẢO, K = −R2/R1."},
+{p:2,dia:'INV',q:"Với sơ đồ này (R1 = 1kΩ, R2 = 22kΩ), hệ số khuếch đại bằng?",o:["−22","+23","−0,045","+22"],a:0,e:"Mạch đảo: K = −R2/R1 = −22kΩ / 1kΩ = −22."},
+{p:2,dia:'INV',q:"Đặt đầu dò đo tại Vout (điểm cam), tín hiệu ra so với tín hiệu vào sẽ?",o:["Đồng pha","Ngược pha 180°","Lệch pha 90°","Mất tín hiệu"],a:1,e:"Mạch khuếch đại đảo cho tín hiệu ra ngược pha 180° so với ngõ vào (tín hiệu vào ngõ −)."},
+{p:2,dia:'INV',q:"Nếu Vin = 0,1V một chiều, điện áp đo tại Vout xấp xỉ?",o:["−2,2V","+2,2V","−0,1V","−22V"],a:0,e:"Vout = K·Vin = −22 × 0,1V = −2,2V (dấu trừ vì mạch đảo)."},
+{p:2,dia:'NONINV',q:"Sơ đồ này: Vin vào ngõ (+), R1 nối đất ở ngõ (−), R2 hồi tiếp về ngõ (−). Đây là mạch?",o:["Khuếch đại đảo","Khuếch đại không đảo","Mạch trừ","Mạch vi phân"],a:1,e:"Tín hiệu vào ngõ (+) → khuếch đại KHÔNG ĐẢO, K = 1 + R2/R1 (luôn ≥ 1, đồng pha)."},
+{p:2,dia:'NONINV',q:"Mạch không đảo này có R1 = 1kΩ, R2 = 9kΩ. Hệ số khuếch đại bằng?",o:["9","10","−9","0,9"],a:1,e:"K = 1 + R2/R1 = 1 + 9k/1k = 10. Mạch không đảo có K ≥ 1."},
+{p:2,dia:'COMP',q:"Op-amp không có hồi tiếp âm, một ngõ nối Vref, một ngõ nối Vin — đây là mạch?",o:["Khuếch đại đệm","Mạch so sánh (comparator)","Mạch cộng","Mạch lọc"],a:1,e:"Chạy vòng hở (không hồi tiếp âm), so sánh Vin với Vref → ngõ ra bão hòa +Vsat hoặc −Vsat."},
+{p:2,dia:'COMP',q:"Khi Vin > Vref (Vin đưa vào ngõ +) ở mạch so sánh này, ngõ ra sẽ?",o:["Bằng Vin","Bão hòa mức dương (+Vsat)","Bão hòa mức âm (−Vsat)","Bằng 0V"],a:1,e:"Vin vào ngõ (+) lớn hơn Vref → ngõ ra lật lên bão hòa dương +Vsat (gần +nguồn nuôi)."},
+{p:2,dia:'INTEG',q:"Op-amp có R ở ngõ vào và tụ C ở nhánh hồi tiếp — đây là mạch?",o:["Vi phân","Tích phân","So sánh","Khuếch đại đảo thuần"],a:1,e:"R vào + C hồi tiếp → mạch TÍCH PHÂN: Vout = −(1/RC)∫Vin dt. (Đổi vai trò C-vào, R-hồi tiếp thì thành vi phân.)"},
+{p:2,dia:'INTEG',q:"Đưa sóng vuông vào mạch tích phân này, dạng sóng đo tại Vout là?",o:["Sóng vuông","Sóng tam giác","Sóng sin","Xung nhọn"],a:1,e:"Tích phân của mức hằng (từng nửa chu kỳ sóng vuông) cho đoạn dốc tuyến tính → ra sóng tam giác."},
+
+/* ===== Phần 2 (ổn áp / chỉnh lưu / dao động / clipper / transistor) ===== */
+{p:2,dia:'ZENER',q:"Sơ đồ dưới đây là mạch gì?",o:["Mạch khuếch đại","Mạch ổn áp dùng diode Zener","Mạch chỉnh lưu","Mạch dao động"],a:1,e:"Rs hạn dòng nối tiếp, Dz mắc song song tải và phân cực ngược ở vùng đánh thủng → ổn áp Zener, Vout ≈ Vz."},
+{p:2,dia:'ZENER',q:"Trong mạch này, diode Zener Dz được phân cực như thế nào?",o:["Thuận","Ngược (vùng đánh thủng)","Không phân cực","Đảo liên tục"],a:1,e:"Catôt Dz nối về phía dương; Dz làm việc ở vùng đánh thủng ngược, giữ áp trên nó ≈ Vz."},
+{p:2,dia:'ZENER',q:"Điện trở Rs trong mạch ổn áp Zener có vai trò gì?",o:["Khuếch đại tín hiệu","Hạn dòng và gánh phần áp dư (Vin − Vz)","Tạo dao động","Lọc nhiễu cao tần"],a:1,e:"Rs nối tiếp hạn chế dòng qua Zener và gánh chênh lệch áp, bảo vệ Zener khỏi quá dòng."},
+{p:2,dia:'ZENER',q:"Nếu Dz là Zener 5,1V, điện áp đo tại Vout xấp xỉ?",o:["Bằng Vin","≈ 5,1V","0V","Gấp đôi Vin"],a:1,e:"Khi Zener dẫn ở vùng đánh thủng, áp ra được ghim ≈ Vz = 5,1V, gần như không đổi theo Vin (trong giới hạn cho phép)."},
+{p:2,dia:'REG7805',q:"Sơ đồ dùng IC 3 chân (IN–GND–OUT) kèm 2 tụ lọc — là mạch gì?",o:["Ổn áp tuyến tính dùng IC 7805","Khuếch đại công suất","Dao động 555","Chỉnh lưu cầu"],a:0,e:"IC 7805 (IN/GND/OUT) với Cin, Cout → mạch ổn áp tuyến tính cho ra +5V cố định."},
+{p:2,dia:'REG7805',q:"Điện áp đo được ở ngõ ra của mạch này là?",o:["+12V","+5V","−5V","+3,3V"],a:1,e:"7805 thuộc họ 78xx (ổn áp dương); hai số cuối '05' → ra +5V."},
+{p:2,dia:'REG7805',q:"Để 7805 ổn áp đúng +5V, điện áp Vin tối thiểu nên khoảng?",o:["≈ 5V","≥ ~7V (cao hơn 5V một mức điện áp rơi)","≤ 3V","Bằng 0V"],a:1,e:"Cần Vin > Vout + dropout (~2–3V) → thường ≥ 7V. Vin tụt thấp thì áp ra không giữ được 5V."},
+{p:2,dia:'BRIDGE',q:"Sơ đồ 4 diode mắc kiểu cầu, vào AC, ra có tụ lọc — là mạch gì?",o:["Mạch chỉnh lưu cầu (AC→DC)","Mạch nhân áp","Mạch hạn biên","Mạch so sánh"],a:0,e:"4 diode mắc cầu chỉnh lưu cả hai nửa chu kỳ; tụ C san phẳng → biến đổi AC thành DC (ngõ ra +DC)."},
+{p:2,dia:'BRIDGE',q:"Tụ C trong mạch chỉnh lưu cầu này có nhiệm vụ?",o:["Tăng tần số","San phẳng điện áp, giảm độ gợn (ripple)","Hạ điện áp ra","Đảo pha tín hiệu"],a:1,e:"Tụ lọc nạp/xả giữ điện áp ra phẳng hơn giữa các đỉnh chỉnh lưu, giảm thành phần gợn sóng."},
+{p:2,dia:'A555',q:"Sơ đồ NE555 với R1, R2, C bên ngoài, lấy tín hiệu ở chân 3 — là mạch gì?",o:["Mạch ổn áp","Dao động đa hài tự kích (astable)","Mạch khuếch đại","Mạch chỉnh lưu"],a:1,e:"NE555 mắc kiểu astable (R1, R2, C) tự dao động, phát xung vuông liên tục ở chân OUT (chân 3)."},
+{p:2,dia:'A555',q:"Tín hiệu ra của mạch này đo ở chân số mấy của NE555?",o:["Chân 1","Chân 3","Chân 5","Chân 8"],a:1,e:"Chân 3 (OUTPUT) là nơi lấy dãy xung vuông ra. Chân 1 = GND, chân 8 = VCC."},
+{p:2,dia:'A555',q:"Muốn TĂNG tần số xung ra của mạch 555 astable này, ta nên?",o:["Tăng tụ C","Giảm R hoặc C (giảm R1, R2 hoặc C)","Tăng điện áp nguồn","Tháo chân 3"],a:1,e:"f ≈ 1,44 / [(R1+2R2)·C]. Giảm R hoặc C làm chu kỳ ngắn lại → tần số tăng. Nguồn nuôi gần như không đổi tần số."},
+{p:2,dia:'CLIP',q:"Sơ đồ có R nối tiếp và một diode nối từ ngõ ra xuống đất — đây là mạch gì?",o:["Mạch hạn chế biên độ (clipper)","Mạch khuếch đại","Mạch dao động","Mạch ổn áp"],a:0,e:"Diode dẫn khi tín hiệu vượt ngưỡng, ghim/cắt bớt biên độ → mạch hạn chế biên độ (clipper); R hạn dòng."},
+{p:2,dia:'CE',q:"Sơ đồ transistor: tín hiệu vào cực gốc (B) qua Cin, lấy ra ở cực góp (C) — mạch mắc kiểu?",o:["Emitter chung (CE)","Collector chung (CC)","Base chung (CB)","Cascode"],a:0,e:"Vào ở B, ra ở C, E là chân chung → mắc Emitter chung (CE): khuếch đại cả áp và dòng, đảo pha 180°."},
+{p:2,dia:'CE',q:"Cặp R1, R2 trong sơ đồ mạch CE này có chức năng gì?",o:["Hạn dòng ra loa","Phân cực (định điểm làm việc tĩnh) cho cực gốc","Tạo dao động","Lọc nguồn nuôi"],a:1,e:"R1, R2 tạo cầu phân áp định điện áp phân cực cực gốc → đặt điểm làm việc tĩnh (Q) cho transistor."},
+
+/* ===== Phần 1: đo đạc trên sơ đồ + Proteus ===== */
+{p:1,dia:'DIVIDER',q:"Đặt đầu dò vôn kế tại Vout của cầu phân áp này (R1 = 2kΩ, R2 = 1kΩ, nguồn 12V). Số đo là?",o:["12V","8V","4V","6V"],a:2,e:"Cầu phân áp: Vout = 12V × R2/(R1+R2) = 12 × 1k/3k = 4V."},
+{p:1,q:"Trong Proteus, để chạy mô phỏng đồ thị (Graph), sau khi chọn Graph ta nhấn phím?",o:["Enter","Phím cách (Space bar)","F5","Esc"],a:1,e:"Chọn Graph rồi nhấn Space để Proteus thực hiện mô phỏng và vẽ đồ thị."},
+{p:1,q:"Trong Proteus, loại đồ thị (Graph) dùng cho mạch điện tử TƯƠNG TỰ là?",o:["DIGITAL","ANALOGUE","MIXED","TEXT"],a:1,e:"Mạch tương tự chọn Graph kiểu ANALOGUE; mạch số chọn DIGITAL."},
+{p:1,q:"Phép phân tích nào thay đổi một tham số (vd điện trở 1k→10k) để khảo sát/đặc tuyến?",o:["AC analysis","DC Sweep (quét một chiều)","Transient","Noise"],a:1,e:"DC Sweep quét một tham số (nguồn hoặc linh kiện) qua một dải giá trị để vẽ đặc tuyến, ví dụ đặc tuyến Vào–Ra."},
+{p:1,q:"Để hiển thị dạng tín hiệu tại một điểm trong mạch Proteus lên Graph, ta dùng?",o:["Một điện trở","Đầu dò (Probe) gắn vào điểm đo","Một tụ điện","Nút Reset"],a:1,e:"Gắn đầu dò (Probe điện áp/dòng) vào điểm cần đo, rồi kéo–thả đầu dò vào Graph để hiển thị tín hiệu tại đó."},
+{p:2,q:"Để vẽ đặc tuyến biên–tần và pha–tần của mạch khuếch đại trong Proteus, dùng phân tích?",o:["Miền thời gian (Transient)","Miền tần số (Frequency)","DC Sweep","Fourier"],a:1,e:"Đặc tuyến biên–tần/pha–tần là đáp ứng theo tần số → dùng phân tích Frequency response."},
+{p:2,q:"Để quan sát dạng sóng tín hiệu vào/ra theo thời gian (quá độ) trong Proteus, dùng phân tích?",o:["Frequency","Transient (quá độ)","DC operating point","Noise"],a:1,e:"Dạng sóng theo thời gian dùng phân tích Transient (đáp ứng quá độ)."},
+{p:2,q:"Khi mô phỏng vi điều khiển AT89C51 trong Proteus, mã nguồn được biên dịch bằng?",o:["GCC","ASEM-51","Python","Arduino IDE"],a:1,e:"Bài chọn trình hợp dịch ASEM-51 cho AT89C51 ngay trong Proteus để tạo file nạp cho mô phỏng."},
+
+/* ===== Phần 4: tầng vi sai (có sơ đồ) ===== */
+{p:4,dia:'DIFF',q:"Sơ đồ hai transistor chung chân emitter, hai ngõ vào V1/V2, hai ngõ ra Vo1/Vo2 — là tầng gì?",o:["Tầng công suất đẩy kéo","Tầng khuếch đại vi sai (differential)","Tầng dao động","Mạch ổn áp"],a:1,e:"Hai transistor đối xứng chung emitter khuếch đại hiệu hai ngõ vào → tầng khuếch đại vi sai. Đây là tầng tiền khuếch đại của máy tăng âm trong bài."},
+{p:4,dia:'DIFF',q:"Ưu điểm chính của tầng vi sai này trong máy tăng âm là?",o:["Tạo dao động ổn định","Khử tín hiệu đồng pha và trôi điểm công tác (drift), khuếch đại tín hiệu hiệu","Tăng tần số tín hiệu","Giảm điện áp nguồn"],a:1,e:"Tầng vi sai khuếch đại hiệu hai ngõ vào và khử thành phần đồng pha (nhiễu, trôi nhiệt) → ổn định, ít méo, lý tưởng cho tầng đầu."},
+{p:4,dia:'DIFF',q:"Khi hiệu chỉnh tầng vi sai, ta đo các điện áp một chiều tại chân transistor nhằm?",o:["Đặt đúng điểm làm việc tĩnh (phân cực cân bằng hai nhánh)","Đo tần số dao động","Đo công suất ra loa","Kiểm tra màu LED"],a:0,e:"Đo mức DC tại C, B, E để chỉnh phân cực cân bằng giữa hai nhánh → điểm làm việc tĩnh đúng trước khi đưa tín hiệu xoay chiều vào."},
+
+/* ===== Phần 5: câu CODE ===== */
+{p:5,mono:true,code:`<span class="cm">int muc = doKhoangCach();   // đọc mức nước (cm)</span>
+int LEVEL = 10;             <span class="cm">// ngưỡng phát hiện (cm)</span>
+
+if (muc &gt; LEVEL) {
+    digitalWrite(BOM, HIGH);   <span class="cm">// bật bơm</span>
+} else {
+    digitalWrite(BOM, LOW);    <span class="cm">// tắt bơm</span>
+}`,q:"Cho đoạn code điều khiển bơm nước theo cảm biến siêu âm. Để THAY ĐỔI mức nước được nhận diện (ngưỡng bật/tắt bơm), cần sửa dòng nào?",o:["int LEVEL = 15;   // đổi giá trị ngưỡng","digitalWrite(BOM, LOW);","Serial.begin(9600);","delay(1000);"],a:0,e:"Ngưỡng mực nước do biến LEVEL quyết định (so sánh muc > LEVEL). Đổi LEVEL (vd 10 → 15) sẽ đổi mức nước nhận diện. Các dòng còn lại chỉ điều khiển bơm, mở UART hoặc tạo trễ — không đổi ngưỡng."},
+{p:5,mono:true,code:`int muc = doKhoangCach();   <span class="cm">// cm tới mặt nước</span>
+if (muc &gt; NGUONG) digitalWrite(BOM, HIGH);  <span class="cm">// bơm</span>
+else               digitalWrite(BOM, LOW);`,q:"Cảm biến siêu âm đặt trên cao đo xuống, 'muc' là khoảng cách tới mặt nước. Vì sao điều kiện bật bơm lại là muc > NGUONG?",o:["Vì khoảng cách lớn nghĩa là mực nước thấp → cần bơm","Vì khoảng cách lớn nghĩa là nước đã đầy","Vì bơm cần luôn bật","Vì cảm biến đo trực tiếp thể tích nước"],a:0,e:"Cảm biến đo từ trên xuống: khoảng cách lớn = mặt nước ở xa = mực nước THẤP → bật bơm. Khi nước dâng, khoảng cách giảm dưới ngưỡng → tắt bơm."},
+{p:5,mono:true,code:`<span class="cm">// điều khiển tốc độ động cơ DC trên ESP32</span>
+analogWrite(DC_MOTOR, toc_do);   <span class="cm">// toc_do: 0..255</span>`,q:"Trong code điều khiển tốc độ động cơ một chiều trên ESP32, hàm analogWrite(pin, toc_do) thực chất xuất ra?",o:["Điện áp analog thật","Tín hiệu PWM với chu kỳ làm việc theo 'toc_do'","Tín hiệu UART nối tiếp","Xung 1Hz cố định"],a:1,e:"analogWrite tạo tín hiệu PWM; giá trị toc_do (0–255) đặt chu kỳ làm việc → điện áp trung bình → tốc độ động cơ. Tăng toc_do thì động cơ quay nhanh hơn."},
+];
+
+/* ===================== APP ===================== */
+const el = id => document.getElementById(id);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+let selectedParts = new Set([1,2,3,4,5]);
+let shuffle = true, limit = false;
+let deck = [], idx = 0, answered = false, results = [], curOrder = [];
+
+/* build part chips */
+const partsBox = el('parts');
+Object.entries(PARTS).forEach(([num,info])=>{
+  const count = Q.filter(q=>q.p==num).length;
+  const d = document.createElement('div');
+  d.className = 'pchip on';
+  d.dataset.p = num;
+  d.innerHTML = `<div class="tick"></div><div class="pn">PHẦN ${num}</div>
+    <div class="pt">${info.short}</div><div class="pc">${count} câu</div>`;
+  d.onclick = ()=>{
+    if(selectedParts.has(+num)){selectedParts.delete(+num);d.classList.remove('on');}
+    else{selectedParts.add(+num);d.classList.add('on');}
+    updateStartCount();
+  };
+  partsBox.appendChild(d);
+});
+
+function updateStartCount(){
+  const pool = Q.filter(q=>selectedParts.has(q.p));
+  let n = pool.length;
+  if(limit) n = Math.min(20, n);
+  el('startCount').textContent = selectedParts.size===0
+    ? 'Hãy chọn ít nhất một phần.'
+    : `${n} câu sẽ được hỏi.`;
+  el('startBtn').disabled = selectedParts.size===0;
+}
+
+el('selAll').onclick = ()=>{selectedParts=new Set([1,2,3,4,5]);document.querySelectorAll('.pchip').forEach(c=>c.classList.add('on'));updateStartCount();};
+el('selNone').onclick = ()=>{selectedParts=new Set();document.querySelectorAll('.pchip').forEach(c=>c.classList.remove('on'));updateStartCount();};
+
+el('tgShuffle').onclick = function(){shuffle=!shuffle;this.classList.toggle('on',shuffle);};
+el('tgLimit').onclick = function(){limit=!limit;this.classList.toggle('on',limit);updateStartCount();};
+
+function shuf(a){const x=a.slice();for(let i=x.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[x[i],x[j]]=[x[j],x[i]];}return x;}
+
+el('startBtn').onclick = start;
+el('retryBtn').onclick = ()=>{show('start');};
+el('homeBtn').onclick = ()=>{show('start');};
+el('quitBtn').onclick = ()=>finish();
+el('nextBtn').onclick = next;
+
+function start(){
+  let pool = Q.filter(q=>selectedParts.has(q.p)).map((q,i)=>({...q, _ord:i}));
+  deck = shuffle ? shuf(pool) : pool;
+  if(limit) deck = deck.slice(0,20);
+  idx = 0; results = [];
+  el('readout').hidden = false;
+  el('rqt').textContent = deck.length;
+  show('quiz');
+  render();
+}
+
+function show(name){
+  ['start','quiz','result'].forEach(s=>el(s).hidden = s!==name);
+  if(name!=='quiz') el('readout').hidden = (name==='start');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function render(){
+  answered = false;
+  const item = deck[idx];
+  el('bar').style.width = (idx/deck.length*100)+'%';
+  el('qtag').textContent = 'PHẦN '+item.p;
+  el('qnum').textContent = `Câu ${idx+1} / ${deck.length}`;
+  el('rqi').textContent = idx+1;
+  el('qtext').textContent = item.q;
+  const media = el('qmedia');
+  let mh = '';
+  if(item.dia && DIAGRAMS[item.dia]) mh += DIAGRAMS[item.dia];
+  if(item.code) mh += `<div class="code-box">${item.code}</div>`;
+  media.innerHTML = mh;
+  el('feedback').innerHTML = '';
+  el('nextBtn').disabled = true;
+  el('nextBtn').textContent = idx===deck.length-1 ? 'Xem kết quả →' : 'Câu tiếp →';
+  const ob = el('opts'); ob.innerHTML='';
+  const keys = ['A','B','C','D'];
+  curOrder = shuf(item.o.map((_,i)=>i));
+  curOrder.forEach((origIdx,disp)=>{
+    const b = document.createElement('button');
+    b.className='opt'+(item.mono?' mono':''); b.type='button';
+    b.innerHTML = `<span class="key">${keys[disp]}</span><span class="otxt">${esc(item.o[origIdx])}</span>`;
+    b.onclick = ()=>choose(disp);
+    ob.appendChild(b);
+  });
+}
+
+function choose(disp){
+  if(answered) return;
+  answered = true;
+  const item = deck[idx];
+  const chosenOrig = curOrder[disp];        // original option index clicked
+  const correctDisp = curOrder.indexOf(item.a); // display position of correct answer
+  const ok = chosenOrig===item.a;
+  results.push({p:item.p, ok, q:item.q, correct:item.a, opts:item.o, e:item.e, dia:item.dia, code:item.code, mono:item.mono});
+
+  const btns = el('opts').children;
+  for(let k=0;k<btns.length;k++){
+    btns[k].disabled = true;
+    if(k===correctDisp) btns[k].classList.add('correct');
+    else if(k===disp) btns[k].classList.add('wrong');
+    else btns[k].classList.add('dim');
+  }
+  const fb = el('feedback');
+  fb.innerHTML = `<div class="explain">
+      <div class="verdict ${ok?'ok':'bad'}">${ok?'✓ Chính xác':'✕ Chưa đúng — đáp án đúng: '+['A','B','C','D'][correctDisp]}</div>
+      ${item.e}</div>`;
+  el('nextBtn').disabled = false;
+  const nok = results.filter(r=>r.ok).length;
+  el('rok').textContent = nok;
+  el('liveScore').textContent = nok+' đúng';
+  el('nextBtn').focus();
+}
+
+function next(){
+  if(!answered) return;
+  if(idx===deck.length-1){ finish(); return; }
+  idx++; render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function finish(){
+  el('bar').style.width='100%';
+  const total = results.length || 1;
+  const nok = results.filter(r=>r.ok).length;
+  const pct = Math.round(nok/total*100);
+  el('rPct').textContent = pct+'%';
+  el('rLine').textContent = `${nok}/${results.length} câu đúng`;
+  let msg;
+  if(pct>=85) msg='Rất vững! Bạn đã nắm chắc phần lớn nội dung. Lướt lại vài câu sai cho chắc là ổn.';
+  else if(pct>=65) msg='Khá tốt. Tập trung ôn lại các phần còn yếu bên dưới trước khi thi.';
+  else if(pct>=45) msg='Đã có nền. Nên xem lại lý thuyết các phần điểm thấp rồi luyện lại bộ đề.';
+  else msg='Cần ôn lại kỹ hơn. Xem lại câu sai, đọc kỹ giải thích rồi làm lại từ đầu nhé.';
+  el('rMsg').textContent = msg;
+
+  /* per-part breakdown */
+  const bars = el('bars'); bars.innerHTML='';
+  for(let p=1;p<=5;p++){
+    const arr = results.filter(r=>r.p===p);
+    if(!arr.length) continue;
+    const c = arr.filter(r=>r.ok).length;
+    const pc = Math.round(c/arr.length*100);
+    const row = document.createElement('div');
+    row.className='brow';
+    row.innerHTML = `<div class="bl">Phần ${p}</div>
+      <div class="bt"><i style="width:${pc}%;background:${pc>=65?'var(--ok)':pc>=45?'var(--amber)':'var(--bad)'}"></i></div>
+      <div class="bv">${c}/${arr.length}</div>`;
+    bars.appendChild(row);
+  }
+  show('result');
+}
+
+/* review wrong answers */
+el('reviewBtn').onclick = ()=>{
+  const wrong = results.filter(r=>!r.ok);
+  if(!wrong.length){ el('rMsg').textContent='Bạn không sai câu nào — không có gì để xem lại!'; return; }
+  deck = wrong.map(w=>({p:w.p,q:w.q,o:w.opts,a:w.correct,e:w.e,dia:w.dia,code:w.code,mono:w.mono}));
+  idx=0; results=[];
+  el('rqt').textContent = deck.length;
+  show('quiz'); render();
+};
+
+/* keyboard */
+document.addEventListener('keydown',e=>{
+  if(el('quiz').hidden) return;
+  if(['1','2','3','4'].includes(e.key)){ const i=+e.key-1; if(deck[idx]&&i<deck[idx].o.length) choose(i); }
+  const k=e.key.toUpperCase();
+  if(['A','B','C','D'].includes(k)){ const i='ABCD'.indexOf(k); if(deck[idx]&&i<deck[idx].o.length) choose(i); }
+  if(e.key==='Enter' && answered){ e.preventDefault(); next(); }
+});
+
+updateStartCount();
+</script>
+</body>
+</html>

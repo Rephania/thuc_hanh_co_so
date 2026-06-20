@@ -718,6 +718,36 @@
         transition: none !important
       }
     }
+
+    /* ---------- browse mode ---------- */
+    .q-card {
+      border: 1.5px solid var(--line);
+      border-radius: 14px;
+      padding: 20px 22px;
+      margin-bottom: 14px;
+      background: var(--surface);
+      transition: border-color .2s;
+    }
+    .q-card.answered-ok { border-color: var(--ok); }
+    .q-card.answered-bad { border-color: var(--bad); }
+    .q-card .cnum {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: .04em;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .q-card .qtext { font-size: 17px; margin-bottom: 14px; }
+    .browse-hd {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
   </style>
 </head>
 
@@ -765,6 +795,9 @@
         <div class="toggle" id="tgLimit">
           <div class="sw"></div><span>Giới hạn 20 câu (đề ngắn)</span>
         </div>
+        <div class="toggle" id="tgBrowse">
+          <div class="sw"></div><span>Hiển thị toàn bộ câu hỏi</span>
+        </div>
       </div>
 
       <div class="btn-row">
@@ -791,6 +824,18 @@
         <span class="sp" id="liveScore">0 đúng</span>
       </div>
       <div class="hint">Phím tắt: 1–4 hoặc A–D để chọn · Enter để sang câu tiếp</div>
+    </div>
+
+    <!-- BROWSE -->
+    <div class="panel" id="browse" hidden>
+      <div class="prog"><i id="bbar" style="width:0%"></i></div>
+      <div class="browse-hd">
+        <span class="tag">TOÀN BỘ CÂU HỎI</span>
+        <span class="qnum" id="bcount">0 / 0 đã trả lời</span>
+        <button class="btn amber" id="bFinishBtn" style="margin-left:auto">Xem kết quả →</button>
+        <button class="btn ghost" id="bQuitBtn">Kết thúc</button>
+      </div>
+      <div id="browse-list"></div>
     </div>
 
     <!-- RESULT -->
@@ -1535,8 +1580,51 @@ distance = time*346.5*100/1000000/2;`, q: "Trong code cảm biến siêu âm, h�
     const el = id => document.getElementById(id);
     const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     let selectedParts = new Set([1, 2, 3, 4, 5]);
-    let shuffle = true, limit = false;
+    let shuffle = true, limit = false, browseMode = false;
     let deck = [], idx = 0, answered = false, results = [], curOrder = [];
+
+    /* ---- Sound system (Web Audio API) ---- */
+    let _actx;
+    function _ctx() { return _actx || (_actx = new (window.AudioContext || window.webkitAudioContext)()); }
+    function playSound(type) {
+      try {
+        const ctx = _ctx();
+        if (ctx.state === 'suspended') ctx.resume();
+        const master = ctx.createGain();
+        master.connect(ctx.destination);
+        if (type === 'correct') {
+          [[0, 523], [0.13, 784]].forEach(([t, freq]) => {
+            const o = ctx.createOscillator(), g = ctx.createGain();
+            o.type = 'sine'; o.frequency.value = freq;
+            g.gain.setValueAtTime(0, ctx.currentTime + t);
+            g.gain.linearRampToValueAtTime(0.18, ctx.currentTime + t + 0.02);
+            g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.22);
+            o.connect(g); g.connect(ctx.destination);
+            o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.24);
+          });
+        } else if (type === 'wrong') {
+          const o = ctx.createOscillator();
+          o.type = 'sawtooth';
+          o.frequency.setValueAtTime(280, ctx.currentTime);
+          o.frequency.exponentialRampToValueAtTime(140, ctx.currentTime + 0.28);
+          master.gain.setValueAtTime(0.14, ctx.currentTime);
+          master.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.28);
+          o.connect(master); o.start(); o.stop(ctx.currentTime + 0.3);
+        } else if (type === 'next') {
+          const o = ctx.createOscillator();
+          o.type = 'sine'; o.frequency.value = 620;
+          master.gain.setValueAtTime(0.09, ctx.currentTime);
+          master.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.09);
+          o.connect(master); o.start(); o.stop(ctx.currentTime + 0.1);
+        } else if (type === 'click') {
+          const o = ctx.createOscillator();
+          o.type = 'sine'; o.frequency.value = 900;
+          master.gain.setValueAtTime(0.07, ctx.currentTime);
+          master.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+          o.connect(master); o.start(); o.stop(ctx.currentTime + 0.06);
+        }
+      } catch (e) {}
+    }
 
     /* build part chips */
     const partsBox = el('parts');
@@ -1548,6 +1636,7 @@ distance = time*346.5*100/1000000/2;`, q: "Trong code cảm biến siêu âm, h�
       d.innerHTML = `<div class="tick"></div><div class="pn">PHẦN ${num}</div>
     <div class="pt">${info.short}</div><div class="pc">${count} câu</div>`;
       d.onclick = () => {
+        playSound('click');
         if (selectedParts.has(+num)) { selectedParts.delete(+num); d.classList.remove('on'); }
         else { selectedParts.add(+num); d.classList.add('on'); }
         updateStartCount();
@@ -1568,8 +1657,9 @@ distance = time*346.5*100/1000000/2;`, q: "Trong code cảm biến siêu âm, h�
     el('selAll').onclick = () => { selectedParts = new Set([1, 2, 3, 4, 5]); document.querySelectorAll('.pchip').forEach(c => c.classList.add('on')); updateStartCount(); };
     el('selNone').onclick = () => { selectedParts = new Set(); document.querySelectorAll('.pchip').forEach(c => c.classList.remove('on')); updateStartCount(); };
 
-    el('tgShuffle').onclick = function () { shuffle = !shuffle; this.classList.toggle('on', shuffle); };
-    el('tgLimit').onclick = function () { limit = !limit; this.classList.toggle('on', limit); updateStartCount(); };
+    el('tgShuffle').onclick = function () { playSound('click'); shuffle = !shuffle; this.classList.toggle('on', shuffle); };
+    el('tgLimit').onclick = function () { playSound('click'); limit = !limit; this.classList.toggle('on', limit); updateStartCount(); };
+    el('tgBrowse').onclick = function () { playSound('click'); browseMode = !browseMode; this.classList.toggle('on', browseMode); };
 
     function shuf(a) { const x = a.slice(); for (let i = x.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0;[x[i], x[j]] = [x[j], x[i]]; } return x; }
 
@@ -1586,13 +1676,13 @@ distance = time*346.5*100/1000000/2;`, q: "Trong code cảm biến siêu âm, h�
       idx = 0; results = [];
       el('readout').hidden = false;
       el('rqt').textContent = deck.length;
-      show('quiz');
-      render();
+      if (browseMode) { show('browse'); renderBrowse(); }
+      else { show('quiz'); render(); }
     }
 
     function show(name) {
-      ['start', 'quiz', 'result'].forEach(s => el(s).hidden = s !== name);
-      if (name !== 'quiz') el('readout').hidden = (name === 'start');
+      ['start', 'quiz', 'browse', 'result'].forEach(s => el(s).hidden = s !== name);
+      if (name !== 'quiz' && name !== 'browse') el('readout').hidden = (name === 'start');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -1636,6 +1726,7 @@ distance = time*346.5*100/1000000/2;`, q: "Trong code cảm biến siêu âm, h�
       const chosenOrig = curOrder[disp];        // original option index clicked
       const correctDisp = curOrder.indexOf(item.a); // display position of correct answer
       const ok = chosenOrig === item.a;
+      playSound(ok ? 'correct' : 'wrong');
       results.push({ p: item.p, ok, q: item.q, correct: item.a, opts: item.o, e: item.e, dia: item.dia, code: item.code, mono: item.mono, t: item.t, lv: item.lv });
 
       const btns = el('opts').children;
@@ -1658,6 +1749,7 @@ distance = time*346.5*100/1000000/2;`, q: "Trong code cảm biến siêu âm, h�
 
     function next() {
       if (!answered) return;
+      playSound('next');
       if (idx === deck.length - 1) { finish(); return; }
       idx++; render();
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1693,6 +1785,86 @@ distance = time*346.5*100/1000000/2;`, q: "Trong code cảm biến siêu âm, h�
       }
       show('result');
     }
+
+    /* ---- Browse mode ---- */
+    function renderBrowse() {
+      const list = el('browse-list');
+      list.innerHTML = '';
+      el('bbar').style.width = '0%';
+      el('bcount').textContent = `0 / ${deck.length} đã trả lời`;
+      el('rqi').textContent = 0;
+      el('rok').textContent = 0;
+      const keys = ['A', 'B', 'C', 'D'];
+      const DTOPIC = { 1: 'Đo lường & thiết bị', 2: 'Điện tử ứng dụng', 3: 'Mạch số & lắp ráp', 4: 'Máy tăng âm', 5: 'IoT & cảm biến' };
+      deck.forEach((item, qIdx) => {
+        const cardOrder = shuf(item.o.map((_, i) => i));
+        const card = document.createElement('div');
+        card.className = 'q-card';
+        card.id = 'qcard-' + qIdx;
+        card.dataset.order = JSON.stringify(cardOrder);
+        const topic = item.t || DTOPIC[item.p];
+        const lv = item.lv || 'Trung bình';
+        const lvClass = lv === 'Dễ' ? 'de' : (lv === 'Khó' ? 'kho' : 'tb');
+        let mh = '';
+        if (item.dia && DIAGRAMS[item.dia]) mh += DIAGRAMS[item.dia];
+        if (item.code) mh += `<div class="code-box">${item.code}</div>`;
+        card.innerHTML = `
+          <div class="cnum">
+            <span class="tag" style="font-size:10px">PHẦN ${item.p}</span>
+            <span>Câu ${qIdx + 1}</span>
+            <span class="sep">·</span>
+            <span>${esc(topic)}</span>
+            <span class="sep">·</span>
+            <span class="lvl ${lvClass}" style="padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700">${esc(lv)}</span>
+          </div>
+          <div class="qtext">${esc(item.q)}</div>
+          ${mh}
+          <div class="card-opts"></div>
+          <div class="card-feedback"></div>`;
+        const optsBox = card.querySelector('.card-opts');
+        cardOrder.forEach((origIdx, disp) => {
+          const b = document.createElement('button');
+          b.className = 'opt' + (item.mono ? ' mono' : ''); b.type = 'button';
+          b.innerHTML = `<span class="key">${keys[disp]}</span><span class="otxt">${esc(item.o[origIdx])}</span>`;
+          b.onclick = () => chooseBrowse(qIdx, disp);
+          optsBox.appendChild(b);
+        });
+        list.appendChild(card);
+      });
+    }
+
+    function chooseBrowse(qIdx, disp) {
+      const card = document.getElementById('qcard-' + qIdx);
+      if (card.dataset.answered) return;
+      card.dataset.answered = '1';
+      const item = deck[qIdx];
+      const cardOrder = JSON.parse(card.dataset.order);
+      const chosenOrig = cardOrder[disp];
+      const correctDisp = cardOrder.indexOf(item.a);
+      const ok = chosenOrig === item.a;
+      playSound(ok ? 'correct' : 'wrong');
+      results.push({ p: item.p, ok, q: item.q, correct: item.a, opts: item.o, e: item.e, dia: item.dia, code: item.code, mono: item.mono, t: item.t, lv: item.lv });
+      const btns = card.querySelectorAll('.opt');
+      btns.forEach((b, k) => {
+        b.disabled = true;
+        if (k === correctDisp) b.classList.add('correct');
+        else if (k === disp) b.classList.add('wrong');
+        else b.classList.add('dim');
+      });
+      card.querySelector('.card-feedback').innerHTML = `<div class="explain">
+        <div class="verdict ${ok ? 'ok' : 'bad'}">${ok ? '✓ Chính xác' : '✕ Chưa đúng — đáp án đúng: ' + ['A','B','C','D'][correctDisp]}</div>
+        ${esc(item.e)}</div>`;
+      card.classList.add(ok ? 'answered-ok' : 'answered-bad');
+      const doneCount = results.length;
+      const nok = results.filter(r => r.ok).length;
+      el('bbar').style.width = (doneCount / deck.length * 100) + '%';
+      el('bcount').textContent = `${doneCount} / ${deck.length} đã trả lời`;
+      el('rqi').textContent = doneCount;
+      el('rok').textContent = nok;
+    }
+
+    el('bFinishBtn').onclick = () => finish();
+    el('bQuitBtn').onclick = () => finish();
 
     /* review wrong answers */
     el('reviewBtn').onclick = () => {
